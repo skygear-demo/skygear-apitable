@@ -55,6 +55,7 @@ class TableEdit extends Component {
               [column]: newValue,
             },
           };
+
           this.setState({
             changes: {
               ...oldChanges,
@@ -64,12 +65,16 @@ class TableEdit extends Component {
         } else {
           /* This is a newly created record */
           const { createdRecords } = this.state;
+
           createdRecords[index] = {
             ...createdRecords[index],
             [column]: newValue,
           };
+
           this.setState({
-            createdRecords: { ...createdRecords },
+            createdRecords: {
+              ...createdRecords,
+            },
           });
         }
       }
@@ -100,7 +105,7 @@ class TableEdit extends Component {
      * so that this.stateRecords() can filter out deleted existing records.
      * Otherwise, delete stored data of the new row */
     for (let i = 0; i < amount; i += 1) {
-      const record = this.stateRecords().get(index + i);
+      const record = this.stateRecords().get(index);
 
       if (record) {
         const recordId = record.get('_recordId');
