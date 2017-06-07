@@ -1,0 +1,1 @@
+export const ATTEMPT_REGISTER = 'ATTEMPT_REGISTER';

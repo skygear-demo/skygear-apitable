@@ -1,0 +1,2 @@
+export const APP_NAME = '<Your Skygear App Name>';
+export const API_KEY = '<Your Skygear API Key>';

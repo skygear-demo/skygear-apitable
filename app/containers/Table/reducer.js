@@ -1,0 +1,103 @@
+/*
+ *
+ * Table reducer
+ *
+ */
+
+import { fromJS } from 'immutable';
+
+import {
+  SHOW_DIALOG,
+  HIDE_DIALOG,
+  CREATE_TABLE_SUCCESS,
+  SET_TABLE_PENDING_DELETE,
+  DELETE_TABLE_SUCCESS,
+  LOAD_TABLE_LIST_SUCCESS,
+  LOAD_TABLE_RECORDS,
+  LOAD_TABLE_RECORDS_SUCCESS,
+  SAVE_TABLE_RECORDS,
+  SAVE_TABLE_RECORDS_SUCCESS,
+  ADD_TABLE_FIELD,
+  ISSUE_TOKEN_SUCCESS,
+  REVOKE_TOKEN_SUCCESS,
+} from './constants';
+
+const initialState = fromJS({
+  dialog: {
+    createTable: false,
+    deleteTable: false,
+    addField: false,
+    getEndPoint: false,
+  },
+  list: [],
+  data: {
+    name: 'Loading ...',
+  },
+  loading: true,
+  saving: false,
+  pendingDeleteTable: false,
+});
+
+function tableReducer(state = initialState, action) {
+  switch (action.type) {
+    case SHOW_DIALOG:
+      return state
+        .setIn(['dialog', action.payload.name], true);
+    case HIDE_DIALOG:
+      return state
+        .setIn(['dialog', action.payload.name], false);
+    case CREATE_TABLE_SUCCESS:
+      return state
+        .updateIn(['list'], (list) => list.unshift(fromJS(action.payload.table)));
+    case SET_TABLE_PENDING_DELETE:
+      return state
+        .set('pendingDeleteTable', fromJS(action.payload));
+    case DELETE_TABLE_SUCCESS:
+      return state
+        .set('pendingDeleteTable', false)
+        .updateIn(['list'], (list) => list.filter((table) => table.get('id') !== action.payload.id));
+    case LOAD_TABLE_LIST_SUCCESS:
+      return state
+        .set('loading', false)
+        .set('list', fromJS(action.payload.list));
+    case LOAD_TABLE_RECORDS:
+      return state
+        .set('loading', true);
+    case LOAD_TABLE_RECORDS_SUCCESS:
+      return state
+        .set('loading', false)
+        .set('data', fromJS({
+          id: action.payload.id,
+          name: action.payload.name,
+          fields: action.payload.fields,
+          records: action.payload.records,
+          tokens: action.payload.tokens,
+          updatedAt: action.payload.updatedAt,
+        }));
+    case SAVE_TABLE_RECORDS:
+      return state
+        .set('saving', true);
+    case SAVE_TABLE_RECORDS_SUCCESS:
+      return state
+        .setIn(['data', 'updatedAt'], fromJS(new Date()))
+        .set('saving', false);
+    case ADD_TABLE_FIELD:
+      return state
+        .updateIn(['data', 'fields'], (fields) => fields.push(fromJS({
+          name: action.payload.name,
+          type: action.payload.type,
+          allowEmpty: action.payload.allowEmpty,
+          data: action.payload.data,
+        })));
+    case ISSUE_TOKEN_SUCCESS:
+      return state
+        .updateIn(['data', 'tokens'], (tokens) => tokens.unshift(action.payload.token));
+    case REVOKE_TOKEN_SUCCESS:
+      return state
+        .updateIn(['data', 'tokens'], (tokens) => tokens.filter((token) => token !== action.payload.token));
+    default:
+      return state;
+  }
+}
+
+export default tableReducer;

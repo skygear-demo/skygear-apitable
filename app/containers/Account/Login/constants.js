@@ -1,0 +1,1 @@
+export const ATTEMPT_LOGIN = 'ATTEMPT_LOGIN';

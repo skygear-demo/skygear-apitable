@@ -1,0 +1,10 @@
+[ignore]
+.*/node_modules/\(styled-components\|react-side-effect\|fbjs\|react-event-listener\)/.*
+
+[include]
+
+[libs]
+
+[options]
+module.system.node.resolve_dirname=app
+module.system.node.resolve_dirname=node_modules
