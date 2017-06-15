@@ -1,13 +1,13 @@
 import React from 'react';
-import Container from './Container';
+import Wrapper from './Wrapper';
 
 const Footer = () => (
-  <Container>
+  <Wrapper>
     <div>2017 &copy; <a href="https://oursky.com">Oursky</a></div>
     <ul>
       <li><a href="mailto:support+apitable@oursky.com">Contact Us</a></li>
     </ul>
-  </Container>
+  </Wrapper>
 );
 
 export default Footer;

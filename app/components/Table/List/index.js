@@ -10,6 +10,7 @@ import URLIcon from 'material-ui/svg-icons/file/cloud';
 import { List, ListItem } from 'material-ui/List';
 import Layout from '../../Layout';
 import Loading from '../../Loading';
+import Container from './Container';
 import CardContainer from '../../Layout/CardContainer';
 import GetStarted from '../GetStarted';
 import Time from '../../Time';
@@ -93,14 +94,16 @@ class TableList extends Component {
 
     return (
       <Layout title="All Tables">
-        <FloatingActionButton
-          style={{ position: 'fixed', right: '2rem', bottom: '1.5rem' }}
-          onClick={showDialog('createTable')}
-        >
-          <ContentAdd />
-        </FloatingActionButton>
+        <Container>
+          <FloatingActionButton
+            style={{ position: 'fixed', right: '2rem', bottom: '1.5rem' }}
+            onClick={showDialog('createTable')}
+          >
+            <ContentAdd />
+          </FloatingActionButton>
 
-        {loading ? <Loading /> : this.renderTableList(list)}
+          {loading ? <Loading /> : this.renderTableList(list)}
+        </Container>
       </Layout>
     );
   }

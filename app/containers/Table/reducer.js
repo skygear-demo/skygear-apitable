@@ -12,14 +12,17 @@ import {
   CREATE_TABLE_SUCCESS,
   SET_TABLE_PENDING_DELETE,
   DELETE_TABLE_SUCCESS,
+  LOAD_TABLE_LIST,
   LOAD_TABLE_LIST_SUCCESS,
   LOAD_TABLE_RECORDS,
   LOAD_TABLE_RECORDS_SUCCESS,
   SAVE_TABLE_RECORDS,
   SAVE_TABLE_RECORDS_SUCCESS,
   ADD_TABLE_FIELD,
+  SET_FIELD_PENDING_REMOVE,
   ISSUE_TOKEN_SUCCESS,
   REVOKE_TOKEN_SUCCESS,
+  RENAME_TABLE,
 } from './constants';
 
 const initialState = fromJS({
@@ -27,7 +30,9 @@ const initialState = fromJS({
     createTable: false,
     deleteTable: false,
     addField: false,
+    removeField: false,
     getEndPoint: false,
+    renameTable: false,
   },
   list: [],
   data: {
@@ -36,6 +41,7 @@ const initialState = fromJS({
   loading: true,
   saving: false,
   pendingDeleteTable: false,
+  pendingRemoveField: [],
 });
 
 function tableReducer(state = initialState, action) {
@@ -56,6 +62,9 @@ function tableReducer(state = initialState, action) {
       return state
         .set('pendingDeleteTable', false)
         .updateIn(['list'], (list) => list.filter((table) => table.get('id') !== action.payload.id));
+    case LOAD_TABLE_LIST:
+      return state
+        .set('loading', true);
     case LOAD_TABLE_LIST_SUCCESS:
       return state
         .set('loading', false)
@@ -89,12 +98,18 @@ function tableReducer(state = initialState, action) {
           allowEmpty: action.payload.allowEmpty,
           data: action.payload.data,
         })));
+    case SET_FIELD_PENDING_REMOVE:
+      return state
+        .set('pendingRemoveField', fromJS(action.payload.fieldNames));
     case ISSUE_TOKEN_SUCCESS:
       return state
         .updateIn(['data', 'tokens'], (tokens) => tokens.unshift(action.payload.token));
     case REVOKE_TOKEN_SUCCESS:
       return state
         .updateIn(['data', 'tokens'], (tokens) => tokens.filter((token) => token !== action.payload.token));
+    case RENAME_TABLE:
+      return state
+        .setIn(['data', 'name'], action.payload.name);
     default:
       return state;
   }

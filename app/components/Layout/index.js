@@ -3,6 +3,7 @@
 import React from 'react';
 
 import Notification from 'containers/Notification';
+import Wrapper from './Wrapper';
 import Header from './Header';
 import Footer from './Footer';
 
@@ -12,12 +13,12 @@ type LayoutProps = {
 }
 
 const Layout = ({ title, children }: LayoutProps) => (
-  <div>
+  <Wrapper>
     <Header title={title} />
     {children}
     <Footer />
     <Notification />
-  </div>
+  </Wrapper>
 );
 
 export default Layout;

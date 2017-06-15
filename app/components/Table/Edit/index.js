@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
+import _ from 'lodash';
+import FlatButton from 'material-ui/FlatButton';
 import { cleanup } from 'utils/helpers';
 import Layout from '../../Layout';
 import Loading from '../../Loading';
-import Header from './Header';
 import Toolbar from './Toolbar';
 import Container from './Container';
 import GetStarted from '../GetStarted';
@@ -17,7 +18,8 @@ type TableEditProps = {
   showDialog: Function,
   hideDialog: Function,
   handleAddTableField: Function,
-  handleSaveChanges: Function
+  handleSaveChanges: Function,
+  setFieldPendingRemove: Function
 }
 
 class TableEdit extends Component {
@@ -35,6 +37,30 @@ class TableEdit extends Component {
   }
 
   stateRecords = () => this.props.table.get('records').filter((record) => !this.state.deletedRecords.includes(record.get('_recordId')));
+
+  contextMenu = () => {
+    const { table, setFieldPendingRemove, showDialog } = this.props;
+    return {
+      callback(key, options) {
+        if (key === 'remove_field') {
+          const startCol = options.start.col;
+          const endCol = options.end.col;
+          const colRange = _.range(startCol, endCol + 1);
+          const fieldNames = colRange.map((col) => table.get('fields').get(col).get('name'));
+          setFieldPendingRemove(fieldNames);
+          showDialog('removeField')();
+        }
+      },
+      items: {
+        remove_row: {},
+        remove_field: {
+          name: 'Remove field',
+        },
+        hsep1: '---------',
+        alignment: {},
+      },
+    };
+  }
 
   handleChange = (change, source) => {
     if (source !== 'loadData') {
@@ -155,8 +181,16 @@ class TableEdit extends Component {
 
     return (
       <Layout>
-        <Container>
-          <Header>{table.get('name')}</Header>
+        <Container style={{ display: 'flex', flexDirection: 'column' }}>
+          <div>
+            <FlatButton
+              label={table.get('name')}
+              style={{ margin: 0 }}
+              labelStyle={{ fontSize: '24px', textTransform: 'none' }}
+              onClick={showDialog('renameTable')}
+              disabled={loading}
+            />
+          </div>
           <Toolbar
             showDialog={showDialog}
             hideDialog={hideDialog}
@@ -170,6 +204,7 @@ class TableEdit extends Component {
             <Spreadsheet
               fields={table.get('fields')}
               records={table.get('records')}
+              contextMenu={this.contextMenu}
               handleChange={this.handleChange}
               handleCreateRow={this.handleCreateRow}
               handleRemoveRow={this.handleRemoveRow}

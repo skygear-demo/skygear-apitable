@@ -13,10 +13,13 @@ import {
   SAVE_TABLE_RECORDS,
   SAVE_TABLE_RECORDS_SUCCESS,
   ADD_TABLE_FIELD,
+  SET_FIELD_PENDING_REMOVE,
+  REMOVE_TABLE_FIELD,
   ISSUE_TOKEN,
   ISSUE_TOKEN_SUCCESS,
   REVOKE_TOKEN,
   REVOKE_TOKEN_SUCCESS,
+  RENAME_TABLE,
 } from './constants';
 
 export function showDialog(name) {
@@ -164,6 +167,27 @@ export function addTableField(id, name, type, allowEmpty, data, resolve, reject)
   };
 }
 
+export function setFieldPendingRemove(fieldNames) {
+  return {
+    type: SET_FIELD_PENDING_REMOVE,
+    payload: {
+      fieldNames,
+    },
+  };
+}
+
+export function removeTableField(id, fieldNames, resolve, reject) {
+  return {
+    type: REMOVE_TABLE_FIELD,
+    payload: {
+      id,
+      fieldNames,
+    },
+    resolve,
+    reject,
+  };
+}
+
 export function issueToken(id, resolve, reject) {
   return {
     type: ISSUE_TOKEN,
@@ -201,5 +225,17 @@ export function revokeTokenSuccess(token) {
     payload: {
       token,
     },
+  };
+}
+
+export function renameTable(id, name, resolve, reject) {
+  return {
+    type: RENAME_TABLE,
+    payload: {
+      id,
+      name,
+    },
+    resolve,
+    reject,
   };
 }

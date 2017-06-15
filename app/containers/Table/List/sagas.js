@@ -73,11 +73,11 @@ export function* tableListData() {
 
   // Suspend execution until location changes
   yield take(LOCATION_CHANGE);
-  yield cancel([
+  yield cancel(
     loadTableListWatcher,
     deleteTableWatcher,
     createTableWatcher,
-  ]);
+  );
 }
 
 // Bootstrap sagas

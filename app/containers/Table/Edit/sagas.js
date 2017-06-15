@@ -9,8 +9,10 @@ import {
   LOAD_TABLE_RECORDS,
   SAVE_TABLE_RECORDS,
   ADD_TABLE_FIELD,
+  REMOVE_TABLE_FIELD,
   ISSUE_TOKEN,
   REVOKE_TOKEN,
+  RENAME_TABLE,
 } from '../constants';
 import {
   loadTableRecords as loadTableRecordsAction,
@@ -146,6 +148,21 @@ export function* addTableField({ payload: { id, name, type, allowEmpty, data }, 
   }
 }
 
+export function* removeTableField({ payload: { id, fieldNames }, resolve, reject }) {
+  try {
+    const tableQuery = (new skygear.Query(Table))
+      .equalTo('_id', id);
+    const tableQueryResult = yield call([skygear.privateDB, skygear.privateDB.query], tableQuery);
+    const table = tableQueryResult[0];
+    table.fields = table.fields.filter((field) => !fieldNames.includes(field.name));
+    yield call([skygear.privateDB, skygear.privateDB.save], table);
+    yield put(loadTableRecordsAction(id));
+    resolve();
+  } catch (error) {
+    reject();
+  }
+}
+
 export function* issueToken({ payload: { id }, resolve, reject }) {
   try {
     const token = new TableAccessToken({
@@ -171,22 +188,40 @@ export function* revokeToken({ payload: { token }, resolve, reject }) {
   }
 }
 
+export function* renameTable({ payload: { id, name }, resolve, reject }) {
+  try {
+    const tableQuery = (new skygear.Query(Table))
+      .equalTo('_id', id);
+    const tableQueryResult = yield call([skygear.privateDB, skygear.privateDB.query], tableQuery);
+    const table = tableQueryResult[0];
+    table.name = name;
+    yield call([skygear.privateDB, skygear.privateDB.save], table);
+    resolve();
+  } catch (error) {
+    reject();
+  }
+}
+
 export function* tableEditData() {
   const loadTableRecordsWatcher = yield takeEvery(LOAD_TABLE_RECORDS, loadTableRecords);
   const saveTableRecordsWatcher = yield takeEvery(SAVE_TABLE_RECORDS, saveTableRecords);
   const addTableFieldWatcher = yield takeEvery(ADD_TABLE_FIELD, addTableField);
+  const removeTableFieldWatcher = yield takeEvery(REMOVE_TABLE_FIELD, removeTableField);
   const issueTokenWatcher = yield takeEvery(ISSUE_TOKEN, issueToken);
   const revokeTokenWatcher = yield takeEvery(REVOKE_TOKEN, revokeToken);
+  const renameTableWatcher = yield takeEvery(RENAME_TABLE, renameTable);
 
   // Suspend execution until location changes
   yield take(LOCATION_CHANGE);
-  yield cancel([
+  yield cancel(
     loadTableRecordsWatcher,
     saveTableRecordsWatcher,
     addTableFieldWatcher,
+    removeTableFieldWatcher,
     issueTokenWatcher,
     revokeTokenWatcher,
-  ]);
+    renameTableWatcher,
+  );
 }
 
 // Bootstrap sagas

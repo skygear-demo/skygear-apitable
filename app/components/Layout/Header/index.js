@@ -2,6 +2,7 @@
 
 import React, { Component } from 'react';
 import AppBar from 'material-ui/AppBar';
+import Wrapper from './Wrapper';
 import Outer from './Outer';
 import Container from '../Container';
 import Title from './Title';
@@ -35,7 +36,7 @@ class Header extends Component {
     const { title } = this.props;
 
     return (
-      <div>
+      <Wrapper>
         <NavigationMenu
           open={this.state.open}
           handleToggle={this.handleToggle}
@@ -53,7 +54,7 @@ class Header extends Component {
             </Container>
           </Outer>
         )}
-      </div>
+      </Wrapper>
     );
   }
 }

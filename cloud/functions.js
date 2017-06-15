@@ -43,9 +43,21 @@ async function fetchTable(id, token) {
     .addAscending('_created_at');
   const tableRecordQueryResult = await skygearDB.query(tableRecordQuery);
 
+  const fields = tableQueryResult[0].fields.map((field) => field.data);
+
+  const records = tableRecordQueryResult
+    .map((_record) => {
+      const record = {};
+      for (let i = 0; i < fields.length; i += 1) {
+        const field = fields[i];
+        record[field] = _record.data[field];
+      }
+      return record;
+    });
+
   const table = {
     name: tableQueryResult[0].name,
-    records: tableRecordQueryResult.map((record) => ({ ...record.data })),
+    records,
     updatedAt: tableQueryResult[0].updatedAt,
   };
 
@@ -55,13 +67,22 @@ async function fetchTable(id, token) {
 async function checkOwner(tableId, ownerId) {
   const tableQuery = (new skygear.Query(Table))
     .equalTo('_id', tableId)
-    .equalTo('_owner', ownerId);
+    .equalTo('_owner_id', ownerId);
   const tableQueryResult = await skygearDB.query(tableQuery);
   return (tableQueryResult.length !== 0);
 }
 
-skygearCloud.beforeSave(TableAccessToken, async (record) => {
-  const valid = await checkOwner(record.tableId, record._owner);
+skygearCloud.afterSave('table', async (record, originalRecord, pool) => {
+  const hasField = !!(record.fields.length);
+  if (!hasField) {
+    await pool.query('DELETE FROM "app_apitable"."tableRecord" WHERE "table" = $1::text', [record._id]);
+  }
+}, {
+  async: false,
+});
+
+skygearCloud.beforeSave('tableAccessToken', async (record) => {
+  const valid = await checkOwner(record.table, record.ownerID);
   if (!valid) {
     throw new Error('Only the owner can issue a new token!');
   }

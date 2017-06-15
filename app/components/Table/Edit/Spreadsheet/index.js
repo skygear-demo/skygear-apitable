@@ -12,9 +12,10 @@ import HotTableContainer from './HotTableContainer';
 type SpreadsheetProps = {
   fields: any,
   records: any,
+  contextMenu: mixed,
   handleChange: Function,
   handleCreateRow: Function,
-  handleRemoveRow: Function
+  handleRemoveRow: Function,
 }
 
 class Spreadsheet extends Component {
@@ -25,7 +26,7 @@ class Spreadsheet extends Component {
   props: SpreadsheetProps
 
   render() {
-    const { fields, records, handleChange, handleCreateRow, handleRemoveRow } = this.props;
+    const { fields, records, contextMenu, handleChange, handleCreateRow, handleRemoveRow } = this.props;
 
     return (
       <HotTableContainer>
@@ -34,7 +35,7 @@ class Spreadsheet extends Component {
           columns={fields.toJS().map((field) => ({ data: field.data, ...getCellTypes(field.type), allowEmpty: field.allowEmpty }))}
           data={records.toJS()}
           rowHeaders
-          contextMenu={['remove_row', '---------', 'undo', 'redo', '---------', 'alignment']}
+          contextMenu={contextMenu()}
           stretchH="all"
           minSpareRows={1}
           afterChange={handleChange}
