@@ -73,9 +73,22 @@ async function checkOwner(tableId, ownerId) {
 }
 
 skygearCloud.afterSave('table', async (record, originalRecord, pool) => {
-  const hasField = !!(record.fields.length);
-  if (!hasField) {
-    await pool.query('DELETE FROM "app_apitable"."tableRecord" WHERE "table" = $1::text', [record._id]);
+  /* If this is not a new table */
+  if (originalRecord !== null) {
+    const fields = record.fields;
+    const oldFields = originalRecord.fields;
+
+    /* Delete all records if the user deleted all fields */
+    const hasField = !!(fields.length);
+    if (!hasField) {
+      await pool.query('DELETE FROM "app_apitable"."tableRecord" WHERE "table" = $1::text', [record._id]);
+    }
+
+    /* If the user deleted fields */
+    if (hasField && (fields.length < oldFields.length)) {
+      const jsonBuildObject = fields.map((field) => `'${field.data}', "data"->'${field.data}'`).join(', ');
+      await pool.query(`UPDATE "app_apitable"."tableRecord" SET "data" = json_build_object(${jsonBuildObject}) WHERE "table" = $1::text`, [record._id]);
+    }
   }
 }, {
   async: false,

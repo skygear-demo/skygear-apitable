@@ -26,13 +26,14 @@ type RemoveColumnDialogProps = {
 
 const RemoveColumnDialog = ({ show, fields, handleClose, handleRemoveFields }: RemoveColumnDialogProps) => (
   <Dialog
-    title="Remove Fields"
+    title="Remove Columns"
     actions={actions(handleClose, handleRemoveFields)}
     modal
     open={show}
   >
-    Are you sure to Remove the field {fields.join(', ')}?
-    <br />You cannot undo this action.
+    Are you sure to Remove the column {fields.join(', ')}?
+    <br />
+    <strong>You cannot undo this action.</strong>
   </Dialog>
 );
 

@@ -12,6 +12,7 @@ import 'babel-polyfill';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import skygear from 'skygear';
+import ReactGA from 'react-ga';
 import { Provider } from 'react-redux';
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 import injectTapEventPlugin from 'react-tap-event-plugin';
@@ -41,7 +42,7 @@ import './global-styles';
 // Import root routes
 import createRoutes from './routes';
 
-import { APP_NAME, API_KEY } from './configs';
+import { APP_NAME, API_KEY, GA_TRACKING_ID } from './configs';
 
 skygear.config({
   endPoint: `https://${APP_NAME}.skygeario.com/`,
@@ -49,6 +50,8 @@ skygear.config({
 });
 
 injectTapEventPlugin();
+
+ReactGA.initialize(GA_TRACKING_ID);
 
 // Create redux store with history
 // this uses the singleton browserHistory provided by react-router
@@ -70,12 +73,18 @@ const rootRoute = {
   childRoutes: createRoutes(store),
 };
 
+const logPageView = () => {
+  ReactGA.set({ page: window.location.pathname });
+  ReactGA.pageview(window.location.pathname);
+};
+
 ReactDOM.render(
   <Provider store={store}>
     <MuiThemeProvider muiTheme={muiTheme}>
       <Router
         history={history}
         routes={rootRoute}
+        onUpdate={logPageView}
         render={
           // Scroll to top when going to a new page, imitating default browser
           // behaviour

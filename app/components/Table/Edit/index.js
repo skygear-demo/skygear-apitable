@@ -9,7 +9,7 @@ import Container from './Container';
 import GetStarted from '../GetStarted';
 import Spreadsheet from './Spreadsheet';
 
-const defaultMessage = (loading) => loading ? <Loading /> : <GetStarted>Add a field to get started ...</GetStarted>;
+const defaultMessage = (loading) => loading ? <Loading /> : <GetStarted>Add a column to get started ...</GetStarted>;
 
 type TableEditProps = {
   loading: boolean,
@@ -46,7 +46,7 @@ class TableEdit extends Component {
           const startCol = options.start.col;
           const endCol = options.end.col;
           const colRange = _.range(startCol, endCol + 1);
-          const fieldNames = colRange.map((col) => table.get('fields').get(col).get('name'));
+          const fieldNames = colRange.map((col) => table.get('fields').get(col).get('data'));
           setFieldPendingRemove(fieldNames);
           showDialog('removeField')();
         }
@@ -54,7 +54,7 @@ class TableEdit extends Component {
       items: {
         remove_row: {},
         remove_field: {
-          name: 'Remove field',
+          name: 'Remove column',
         },
         hsep1: '---------',
         alignment: {},
@@ -158,20 +158,29 @@ class TableEdit extends Component {
         ...oldChanges,
         ...newChanges,
       },
-      createdRecords: {
-        ...createdRecords,
-      },
-      deletedRecords: [
-        ...deletedRecords,
-      ],
     });
   };
 
   resetChanges = () => this.setState({ changes: {}, createdRecords: {}, deletedRecords: [] });
 
   handleSaveChanges = () => {
-    const { changes, createdRecords } = this.state;
-    this.props.handleSaveChanges(changes, cleanup(createdRecords), this.resetChanges);
+    const hotInstance = this.hot.hotInstance;
+    const lastRow = hotInstance.countRows() - 1;
+    hotInstance.updateSettings({
+      minSpareRows: 0,
+    });
+    const emptyRowCount = hotInstance.countEmptyRows(true);
+    hotInstance.alter('remove_row', (lastRow - emptyRowCount) + 1, emptyRowCount);
+    hotInstance.validateCells((isValid) => {
+      const { changes, createdRecords } = this.state;
+      const { handleSaveChanges } = this.props;
+      if (isValid) {
+        handleSaveChanges(changes, cleanup(createdRecords), this.resetChanges);
+      }
+    });
+    hotInstance.updateSettings({
+      minSpareRows: 1,
+    });
   }
 
   props: TableEditProps
@@ -202,6 +211,7 @@ class TableEdit extends Component {
           />
           {table.get('fields') && table.get('fields').size ?
             <Spreadsheet
+              hotRef={(hot) => { this.hot = hot; }}
               fields={table.get('fields')}
               records={table.get('records')}
               contextMenu={this.contextMenu}

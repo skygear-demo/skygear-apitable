@@ -47,7 +47,7 @@ type AddFieldDialogProps = {
 
 const AddFieldDialog = ({ show, handleClose, handleSubmit, submitting }: AddFieldDialogProps) => (
   <Dialog
-    title="Add a new field"
+    title="Add a new column"
     actions={actions(handleClose, handleSubmit, submitting)}
     modal
     open={show}

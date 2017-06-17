@@ -64,7 +64,7 @@ class TableEditContainer extends Component {
       });
     }
 
-    return showNotification(`Field with data name '${data}' already exists!`);
+    return showNotification(`Columns with data name '${data}' already exists!`);
   };
 
   handleRemoveFields = () => {
@@ -73,7 +73,7 @@ class TableEditContainer extends Component {
     return new Promise((resolve, reject) => {
       removeTableField(id, pendingRemoveField, resolve, reject);
     })
-    .then(() => showNotification('Fields have been removed successfully!'));
+    .then(() => showNotification('Columns have been removed successfully!'));
   }
 
   handleSaveChanges = (changes, createdRecords, resetChanges) => {

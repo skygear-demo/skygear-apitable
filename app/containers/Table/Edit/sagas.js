@@ -154,7 +154,7 @@ export function* removeTableField({ payload: { id, fieldNames }, resolve, reject
       .equalTo('_id', id);
     const tableQueryResult = yield call([skygear.privateDB, skygear.privateDB.query], tableQuery);
     const table = tableQueryResult[0];
-    table.fields = table.fields.filter((field) => !fieldNames.includes(field.name));
+    table.fields = table.fields.filter((field) => !fieldNames.includes(field.data));
     yield call([skygear.privateDB, skygear.privateDB.save], table);
     yield put(loadTableRecordsAction(id));
     resolve();

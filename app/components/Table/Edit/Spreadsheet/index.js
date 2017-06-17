@@ -7,15 +7,17 @@ import Handsontable from 'handsontable/dist/handsontable.full';
 import HotTable from 'react-handsontable';
 import 'handsontable/dist/handsontable.full.css';
 import { getCellTypeName, getCellTypes } from 'utils/cellTypes';
+import { getCellValidators } from 'utils/cellValidators';
 import HotTableContainer from './HotTableContainer';
 
 type SpreadsheetProps = {
+  hotRef: mixed,
   fields: any,
   records: any,
   contextMenu: mixed,
   handleChange: Function,
   handleCreateRow: Function,
-  handleRemoveRow: Function,
+  handleRemoveRow: Function
 }
 
 class Spreadsheet extends Component {
@@ -26,13 +28,15 @@ class Spreadsheet extends Component {
   props: SpreadsheetProps
 
   render() {
-    const { fields, records, contextMenu, handleChange, handleCreateRow, handleRemoveRow } = this.props;
+    const { hotRef, fields, records, contextMenu, handleChange, handleCreateRow, handleRemoveRow } = this.props;
 
     return (
       <HotTableContainer>
         <HotTable
+          root="hot"
+          ref={hotRef}
           colHeaders={fields.toJS().map((field) => `${field.name} [${getCellTypeName(field.type)}]`)}
-          columns={fields.toJS().map((field) => ({ data: field.data, ...getCellTypes(field.type), allowEmpty: field.allowEmpty }))}
+          columns={fields.toJS().map((field) => ({ data: field.data, ...getCellTypes(field.type), ...getCellValidators(field.type, field.allowEmpty), allowEmpty: field.allowEmpty }))}
           data={records.toJS()}
           rowHeaders
           contextMenu={contextMenu()}

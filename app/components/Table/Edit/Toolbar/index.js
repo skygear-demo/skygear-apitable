@@ -22,7 +22,7 @@ const TableEditToolbar = ({ showDialog, handleSaveChanges, updatedAt, disabled, 
     >
       <ToolbarGroup firstChild>
         <FlatButton
-          label="Add field"
+          label="Add column"
           icon={<AddIcon />}
           style={{ margin: 0 }}
           onClick={showDialog('addField')}

@@ -19,6 +19,9 @@ export const imageURLRenderer = (instance, td, row, col, prop, value) => {
     cell.innerHTML = img;
   } else {
     cell.innerText = value;
+    if (!instance.isEmptyRow(row)) {
+      cell.className = 'htInvalid';
+    }
   }
 
   return cell;
