@@ -10,6 +10,8 @@ import {
   LOAD_TABLE_LIST_SUCCESS,
   LOAD_TABLE_RECORDS,
   LOAD_TABLE_RECORDS_SUCCESS,
+  LOAD_MORE_TABLE_RECORDS,
+  LOAD_MORE_TABLE_RECORDS_SUCCESS,
   SAVE_TABLE_RECORDS,
   SAVE_TABLE_RECORDS_SUCCESS,
   ADD_TABLE_FIELD,
@@ -123,7 +125,7 @@ export function loadTableRecords(id) {
   };
 }
 
-export function loadTableRecordsSuccess({ id, name, fields, records, tokens, updatedAt }) {
+export function loadTableRecordsSuccess({ id, name, fields, records, tokens, updatedAt }, hasMore) {
   return {
     type: LOAD_TABLE_RECORDS_SUCCESS,
     payload: {
@@ -133,6 +135,27 @@ export function loadTableRecordsSuccess({ id, name, fields, records, tokens, upd
       records,
       tokens,
       updatedAt,
+      hasMore,
+    },
+  };
+}
+
+export function loadMoreTableRecords(id, page = 2) {
+  return {
+    type: LOAD_MORE_TABLE_RECORDS,
+    payload: {
+      id,
+      page,
+    },
+  };
+}
+
+export function loadMoreTableRecordsSuccess(records, hasMore) {
+  return {
+    type: LOAD_MORE_TABLE_RECORDS_SUCCESS,
+    payload: {
+      records,
+      hasMore,
     },
   };
 }

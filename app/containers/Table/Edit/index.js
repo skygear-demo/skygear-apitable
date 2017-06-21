@@ -11,6 +11,7 @@ import {
   showDialog as showDialogAction,
   hideDialog as hideDialogAction,
   loadTableRecords as loadTableRecordsAction,
+  loadMoreTableRecords as loadMoreTableRecordsAction,
   saveTableRecords as saveTableRecordsAction,
   addTableField as addTableFieldAction,
   removeTableField as removeTableFieldAction,
@@ -32,6 +33,7 @@ type TableEditContainerProps = {
   hideDialog: Function,
   showNotification: Function,
   loadTableRecords: Function,
+  loadMoreTableRecords: Function,
   saveTableRecords: Function,
   addTableField: Function,
   setFieldPendingRemove: Function,
@@ -134,7 +136,7 @@ class TableEditContainer extends Component {
   hideDialog = (name) => () => this.props.hideDialog(name);
 
   render() {
-    const { params: { id }, dialog, table, loading, saving, setFieldPendingRemove, pendingRemoveField, showNotification } = this.props;
+    const { params: { id }, dialog, table, loading, saving, setFieldPendingRemove, pendingRemoveField, showNotification, loadMoreTableRecords } = this.props;
 
     return (
       <div>
@@ -174,6 +176,7 @@ class TableEditContainer extends Component {
           handleSaveChanges={this.handleSaveChanges}
           setFieldPendingRemove={setFieldPendingRemove}
           showNotification={showNotification}
+          loadMoreTableRecords={loadMoreTableRecords}
           saving={saving}
         />
       </div>
@@ -194,6 +197,7 @@ export default connect(
     hideDialog: hideDialogAction,
     showNotification: showNotificationAction,
     loadTableRecords: loadTableRecordsAction,
+    loadMoreTableRecords: loadMoreTableRecordsAction,
     saveTableRecords: saveTableRecordsAction,
     addTableField: addTableFieldAction,
     setFieldPendingRemove: setFieldPendingRemoveAction,

@@ -7,6 +7,7 @@ import { push, LOCATION_CHANGE } from 'react-router-redux';
 import { NotFoundError } from 'utils/errors';
 import {
   LOAD_TABLE_RECORDS,
+  LOAD_MORE_TABLE_RECORDS,
   SAVE_TABLE_RECORDS,
   ADD_TABLE_FIELD,
   REMOVE_TABLE_FIELD,
@@ -17,6 +18,7 @@ import {
 import {
   loadTableRecords as loadTableRecordsAction,
   loadTableRecordsSuccess,
+  loadMoreTableRecordsSuccess,
   saveTableRecordsSuccess,
   issueTokenSuccess,
   revokeTokenSuccess,
@@ -39,6 +41,7 @@ export function* loadTableRecords({ payload: { id } }) {
     const tableRecordQuery = (new skygear.Query(TableRecord))
       .equalTo('table', id)
       .addAscending('_created_at');
+    tableRecordQuery.overallCount = true;
     const tableRecordQueryResult = yield call([skygear.privateDB, skygear.privateDB.query], tableRecordQuery);
     const records = tableRecordQueryResult.map((record) => ({ _recordId: record._id, ...record.data }));
 
@@ -57,12 +60,27 @@ export function* loadTableRecords({ payload: { id } }) {
       updatedAt: tableQueryResult[0].updatedAt,
     };
 
-    yield put(loadTableRecordsSuccess(table));
+    const hasMore = tableRecordQueryResult.overallCount > 50;
+
+    yield put(loadTableRecordsSuccess(table, hasMore));
   } catch (error) {
     if (error instanceof NotFoundError) {
       yield put(push('/errors/404'));
     }
   }
+}
+
+export function* loadMoreTableRecords({ payload: { id, page } }) {
+  const tableRecordQuery = (new skygear.Query(TableRecord))
+    .equalTo('table', id)
+    .addAscending('_created_at');
+  tableRecordQuery.overallCount = true;
+  tableRecordQuery.page = page;
+  const tableRecordQueryResult = yield call([skygear.privateDB, skygear.privateDB.query], tableRecordQuery);
+  const records = tableRecordQueryResult.map((record) => ({ _recordId: record._id, ...record.data }));
+  const hasMore = tableRecordQueryResult.overallCount > (page * 50);
+
+  yield put(loadMoreTableRecordsSuccess(records, hasMore));
 }
 
 export function* saveTableRecords({ payload: { id, changes, createdRecords }, resolve, reject }) {
@@ -204,6 +222,7 @@ export function* renameTable({ payload: { id, name }, resolve, reject }) {
 
 export function* tableEditData() {
   const loadTableRecordsWatcher = yield takeEvery(LOAD_TABLE_RECORDS, loadTableRecords);
+  const loadMoreTableRecordsWatcher = yield takeEvery(LOAD_MORE_TABLE_RECORDS, loadMoreTableRecords);
   const saveTableRecordsWatcher = yield takeEvery(SAVE_TABLE_RECORDS, saveTableRecords);
   const addTableFieldWatcher = yield takeEvery(ADD_TABLE_FIELD, addTableField);
   const removeTableFieldWatcher = yield takeEvery(REMOVE_TABLE_FIELD, removeTableField);
@@ -215,6 +234,7 @@ export function* tableEditData() {
   yield take(LOCATION_CHANGE);
   yield cancel(
     loadTableRecordsWatcher,
+    loadMoreTableRecordsWatcher,
     saveTableRecordsWatcher,
     addTableFieldWatcher,
     removeTableFieldWatcher,

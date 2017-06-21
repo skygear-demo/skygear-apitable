@@ -17,7 +17,8 @@ type SpreadsheetProps = {
   contextMenu: mixed,
   handleChange: Function,
   handleCreateRow: Function,
-  handleRemoveRow: Function
+  handleRemoveRow: Function,
+  handleScroll: Function
 }
 
 class Spreadsheet extends Component {
@@ -28,7 +29,7 @@ class Spreadsheet extends Component {
   props: SpreadsheetProps
 
   render() {
-    const { hotRef, fields, records, contextMenu, handleChange, handleCreateRow, handleRemoveRow } = this.props;
+    const { hotRef, fields, records, contextMenu, handleChange, handleCreateRow, handleRemoveRow, handleScroll } = this.props;
 
     return (
       <HotTableContainer>
@@ -45,6 +46,7 @@ class Spreadsheet extends Component {
           afterChange={handleChange}
           afterCreateRow={handleCreateRow}
           afterRemoveRow={handleRemoveRow}
+          afterScrollVertically={handleScroll}
         />
       </HotTableContainer>
     );

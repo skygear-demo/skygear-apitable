@@ -16,6 +16,8 @@ import {
   LOAD_TABLE_LIST_SUCCESS,
   LOAD_TABLE_RECORDS,
   LOAD_TABLE_RECORDS_SUCCESS,
+  LOAD_MORE_TABLE_RECORDS,
+  LOAD_MORE_TABLE_RECORDS_SUCCESS,
   SAVE_TABLE_RECORDS,
   SAVE_TABLE_RECORDS_SUCCESS,
   ADD_TABLE_FIELD,
@@ -39,6 +41,9 @@ const initialState = fromJS({
   hasMore: false,
   data: {
     name: 'Loading ...',
+    page: 1,
+    hasMore: false,
+    records: [],
   },
   loading: true,
   saving: false,
@@ -76,7 +81,8 @@ function tableReducer(state = initialState, action) {
         .updateIn(['list'], (list) => list.concat(fromJS(action.payload.list)));
     case LOAD_TABLE_RECORDS:
       return state
-        .set('loading', true);
+        .set('loading', true)
+        .setIn(['data', 'page'], 1);
     case LOAD_TABLE_RECORDS_SUCCESS:
       return state
         .set('loading', false)
@@ -87,7 +93,18 @@ function tableReducer(state = initialState, action) {
           records: action.payload.records,
           tokens: action.payload.tokens,
           updatedAt: action.payload.updatedAt,
+          page: state.getIn(['data', 'page']),
+          hasMore: action.payload.hasMore,
         }));
+    case LOAD_MORE_TABLE_RECORDS:
+      return state
+        .set('loading', true)
+        .setIn(['data', 'page'], action.payload.page);
+    case LOAD_MORE_TABLE_RECORDS_SUCCESS:
+      return state
+        .set('loading', false)
+        .updateIn(['data', 'records'], (records) => records.concat(fromJS(action.payload.records)))
+        .setIn(['data', 'hasMore'], action.payload.hasMore);
     case SAVE_TABLE_RECORDS:
       return state
         .set('saving', true);

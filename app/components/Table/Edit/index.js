@@ -20,7 +20,8 @@ type TableEditProps = {
   showNotification: Function,
   handleAddTableField: Function,
   handleSaveChanges: Function,
-  setFieldPendingRemove: Function
+  setFieldPendingRemove: Function,
+  loadMoreTableRecords: Function
 }
 
 class TableEdit extends Component {
@@ -183,7 +184,7 @@ class TableEdit extends Component {
         if (isValid) {
           handleSaveChanges(changes, cleanup(createdRecords), this.resetChanges);
         } else {
-          showNotification('You have entered invalid data, please edit or remove row.');
+          showNotification('You have entered invalid data, please edit or remove rows.');
         }
       });
       hotInstance.updateSettings({
@@ -192,7 +193,25 @@ class TableEdit extends Component {
     } else {
       showNotification('There is no column.');
     }
-  }
+  };
+
+  handleScroll = () => {
+    const { loading, table, loadMoreTableRecords } = this.props;
+
+    if (!loading && table.get('hasMore')) {
+      const page = table.get('page');
+      const hotInstance = this.hot.hotInstance;
+      const rowCount = hotInstance.countRows();
+      const rowOffset = hotInstance.rowOffset();
+      const visibleRows = hotInstance.countVisibleRows();
+      const lastVisibleRow = rowOffset + visibleRows + (visibleRows / 2);
+      const threshold = 15;
+
+      if (lastVisibleRow > (rowCount - threshold)) {
+        loadMoreTableRecords(table.get('id'), page + 1);
+      }
+    }
+  };
 
   props: TableEditProps
 
@@ -229,6 +248,7 @@ class TableEdit extends Component {
               handleChange={this.handleChange}
               handleCreateRow={this.handleCreateRow}
               handleRemoveRow={this.handleRemoveRow}
+              handleScroll={this.handleScroll}
             /> : defaultMessage(loading)}
         </Container>
       </Layout>
