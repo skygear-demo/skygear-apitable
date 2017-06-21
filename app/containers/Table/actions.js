@@ -95,16 +95,20 @@ export function deleteTableSuccess(id) {
   };
 }
 
-export function loadTableList() {
+export function loadTableList(page = 1) {
   return {
     type: LOAD_TABLE_LIST,
+    payload: {
+      page,
+    },
   };
 }
 
-export function loadTableListSuccess(list) {
+export function loadTableListSuccess(hasMore, list) {
   return {
     type: LOAD_TABLE_LIST_SUCCESS,
     payload: {
+      hasMore,
       list,
     },
   };

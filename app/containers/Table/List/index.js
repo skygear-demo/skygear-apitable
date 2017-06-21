@@ -5,6 +5,7 @@ import CreateTableDialog from 'components/Table/List/CreateTableDialog';
 import DeleteTableDialog from 'components/Table/List/DeleteTableDialog';
 import TableList from 'components/Table/List';
 import {
+  loadTableList as loadTableListAction,
   showDialog as showDialogAction,
   hideDialog as hideDialogAction,
   createTable as createTableAction,
@@ -15,6 +16,7 @@ import { showNotification as showNotificationAction } from '../../Notification/a
 
 type TableListContainerProps = {
   dialog: any,
+  loadTableList: Function,
   showDialog: Function,
   hideDialog: Function,
   createTable: Function,
@@ -23,12 +25,19 @@ type TableListContainerProps = {
   resetForm: Function,
   showNotification: Function,
   loading: boolean,
+  page: number,
+  total: number,
   list: any,
   pendingDeleteTable: any
 }
 
 class TableListContainer extends Component {
   props: TableListContainerProps
+
+  handleLoadMoreTables = () => {
+    const { page, loadTableList } = this.props;
+    loadTableList(page + 1);
+  }
 
   handleCreateTable = (values) => {
     const name = values.get('name');
@@ -62,7 +71,7 @@ class TableListContainer extends Component {
   hideDialog = (name) => () => this.props.hideDialog(name);
 
   render() {
-    const { dialog, loading, list, pendingDeleteTable, setTablePendingDelete } = this.props;
+    const { dialog, loading, page, list, pendingDeleteTable, setTablePendingDelete, hasMore } = this.props;
 
     return (
       <div>
@@ -79,7 +88,10 @@ class TableListContainer extends Component {
         />
         <TableList
           loading={loading}
+          hasMore={hasMore}
+          page={page}
           list={list}
+          handleLoadMoreTables={this.handleLoadMoreTables}
           showDialog={this.showDialog}
           setTablePendingDelete={setTablePendingDelete}
         />
@@ -92,10 +104,13 @@ export default connect(
   (state) => ({
     dialog: state.get('table').get('dialog'),
     loading: state.get('table').get('loading'),
+    page: state.get('table').get('page'),
+    hasMore: state.get('table').get('hasMore'),
     list: state.get('table').get('list'),
     pendingDeleteTable: state.get('table').get('pendingDeleteTable'),
   }),
   {
+    loadTableList: loadTableListAction,
     showDialog: showDialogAction,
     hideDialog: hideDialogAction,
     resetForm: reset,

@@ -4,6 +4,7 @@ import skygear from 'skygear';
 import { takeEvery } from 'redux-saga';
 import { take, call, put, cancel } from 'redux-saga/effects';
 import { LOCATION_CHANGE } from 'react-router-redux';
+import { ITEMS_PER_PAGE } from 'configs';
 import {
   CREATE_TABLE,
   DELETE_TABLE,
@@ -44,10 +45,14 @@ export function* deleteTable({ payload: { id }, resolve, reject }) {
   }
 }
 
-export function* loadTableList() {
+export function* loadTableList({ payload: { page } }) {
   const tableListQuery = (new skygear.Query(Table))
     .equalTo('deletedAt', null)
     .addDescending('_updated_at');
+  tableListQuery.overallCount = true;
+  tableListQuery.limit = ITEMS_PER_PAGE;
+  tableListQuery.page = page;
+
   const tableListQueryResult = yield call([skygear.privateDB, skygear.privateDB.query], tableListQuery);
   const tableIds = tableListQueryResult.map((table) => table._id);
 
@@ -63,7 +68,8 @@ export function* loadTableList() {
       .filter((token) => token.table._id === `table/${table._id}`)
       .map((token) => token._id),
   }));
-  yield put(loadTableListSuccess(list));
+  const hasMore = (ITEMS_PER_PAGE * page) < tableListQueryResult.overallCount;
+  yield put(loadTableListSuccess(hasMore, list));
 }
 
 export function* tableListData() {

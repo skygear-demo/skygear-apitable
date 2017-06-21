@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import InfiniteScroll from 'react-infinite-scroller';
 import { green500 } from 'material-ui/styles/colors';
 import FloatingActionButton from 'material-ui/FloatingActionButton';
 import ContentAdd from 'material-ui/svg-icons/content/add';
@@ -20,15 +21,18 @@ const apiLink = (id, token) => `https://apitable.skygeario.com/api/tables?id=${i
 const viewAPI = (id, token) => () => window.open(apiLink(id, token));
 
 type TableListProps = {
+  handleLoadMoreTables: Function,
   showDialog: Function,
   setTablePendingDelete: Function,
   loading: boolean,
+  page: number,
+  hasMore: boolean,
   list: mixed,
 }
 
 class TableList extends Component {
   shouldComponentUpdate(nextProps) {
-    return (!this.props.list.equals(nextProps.list) || (this.props.loading !== nextProps.loading));
+    return (!this.props.list.equals(nextProps.list));
   }
 
   props: TableListProps
@@ -39,10 +43,15 @@ class TableList extends Component {
     showDialog('deleteTable')();
   }
 
-  renderTableList = (list) => {
+  renderTableList = (handleLoadMoreTables, loading, hasMore, list) => {
     if (list.size) {
       return (
-        <div>
+        <InfiniteScroll
+          pageStart={0}
+          loadMore={handleLoadMoreTables}
+          hasMore={hasMore}
+          loader={<Loading />}
+        >
           {list.map((table) => (
             <CardContainer key={table.get('id')} style={{ marginBottom: 20 }}>
               <CardHeader
@@ -73,12 +82,12 @@ class TableList extends Component {
                       primaryText={apiLink(table.get('id'), token)}
                       onTouchTap={viewAPI(table.get('id'), token)}
                     />
-                  )) : <div>This table does not have Table Access Token. To get started, go to edit page and create one.</div>}
+                  )) : <div>There is no Table Access Token for this table. To get started, go to edit page and create one.</div>}
                 </List>
               </CardText>
             </CardContainer>
           ))}
-        </div>
+        </InfiniteScroll>
       );
     }
 
@@ -90,7 +99,7 @@ class TableList extends Component {
   };
 
   render() {
-    const { showDialog, loading, list } = this.props;
+    const { showDialog, loading, page, handleLoadMoreTables, hasMore, list } = this.props;
 
     return (
       <Layout title="All Tables">
@@ -102,7 +111,7 @@ class TableList extends Component {
             <ContentAdd />
           </FloatingActionButton>
 
-          {loading ? <Loading /> : this.renderTableList(list)}
+          {(loading && page === 1) ? <Loading /> : this.renderTableList(handleLoadMoreTables, loading, hasMore, list)}
         </Container>
       </Layout>
     );

@@ -35,6 +35,8 @@ const initialState = fromJS({
     renameTable: false,
   },
   list: [],
+  page: 1,
+  hasMore: false,
   data: {
     name: 'Loading ...',
   },
@@ -64,11 +66,14 @@ function tableReducer(state = initialState, action) {
         .updateIn(['list'], (list) => list.filter((table) => table.get('id') !== action.payload.id));
     case LOAD_TABLE_LIST:
       return state
+        .set('page', action.payload.page)
+        .updateIn(['list'], (list) => list.filter(() => action.payload.page !== 1))
         .set('loading', true);
     case LOAD_TABLE_LIST_SUCCESS:
       return state
         .set('loading', false)
-        .set('list', fromJS(action.payload.list));
+        .set('hasMore', action.payload.hasMore)
+        .updateIn(['list'], (list) => list.concat(fromJS(action.payload.list)));
     case LOAD_TABLE_RECORDS:
       return state
         .set('loading', true);
