@@ -134,7 +134,7 @@ class TableEditContainer extends Component {
   hideDialog = (name) => () => this.props.hideDialog(name);
 
   render() {
-    const { params: { id }, dialog, table, loading, saving, setFieldPendingRemove, pendingRemoveField } = this.props;
+    const { params: { id }, dialog, table, loading, saving, setFieldPendingRemove, pendingRemoveField, showNotification } = this.props;
 
     return (
       <div>
@@ -173,6 +173,7 @@ class TableEditContainer extends Component {
           showDialog={this.showDialog}
           handleSaveChanges={this.handleSaveChanges}
           setFieldPendingRemove={setFieldPendingRemove}
+          showNotification={showNotification}
           saving={saving}
         />
       </div>

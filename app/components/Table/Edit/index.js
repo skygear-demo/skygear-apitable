@@ -17,6 +17,7 @@ type TableEditProps = {
   saving: boolean,
   showDialog: Function,
   hideDialog: Function,
+  showNotification: Function,
   handleAddTableField: Function,
   handleSaveChanges: Function,
   setFieldPendingRemove: Function
@@ -64,44 +65,46 @@ class TableEdit extends Component {
 
   handleChange = (change, source) => {
     if (source !== 'loadData') {
-      const index = change[0][0];
-      const record = this.stateRecords().get(index);
-      const column = change[0][1];
-      const oldValue = change[0][2];
-      const newValue = change[0][3];
+      for (let i = 0; i < change.length; i += 1) {
+        const index = change[i][0];
+        const record = this.stateRecords().get(index);
+        const column = change[i][1];
+        const oldValue = change[i][2];
+        const newValue = change[i][3];
 
-      if (oldValue !== newValue) {
-        if (record) {
-          /* This is an existing record */
-          const oldChanges = this.state.changes;
-          const recordId = record.get('_recordId');
-          const newChanges = {
-            [recordId]: {
-              ...oldChanges[recordId],
+        if (oldValue !== newValue) {
+          if (record) {
+            /* This is an existing record */
+            const oldChanges = this.state.changes;
+            const recordId = record.get('_recordId');
+            const newChanges = {
+              [recordId]: {
+                ...oldChanges[recordId],
+                [column]: newValue,
+              },
+            };
+
+            this.setState({
+              changes: {
+                ...oldChanges,
+                ...newChanges,
+              },
+            });
+          } else {
+            /* This is a newly created record */
+            const { createdRecords } = this.state;
+
+            createdRecords[index] = {
+              ...createdRecords[index],
               [column]: newValue,
-            },
-          };
+            };
 
-          this.setState({
-            changes: {
-              ...oldChanges,
-              ...newChanges,
-            },
-          });
-        } else {
-          /* This is a newly created record */
-          const { createdRecords } = this.state;
-
-          createdRecords[index] = {
-            ...createdRecords[index],
-            [column]: newValue,
-          };
-
-          this.setState({
-            createdRecords: {
-              ...createdRecords,
-            },
-          });
+            this.setState({
+              createdRecords: {
+                ...createdRecords,
+              },
+            });
+          }
         }
       }
     }
@@ -164,23 +167,31 @@ class TableEdit extends Component {
   resetChanges = () => this.setState({ changes: {}, createdRecords: {}, deletedRecords: [] });
 
   handleSaveChanges = () => {
-    const hotInstance = this.hot.hotInstance;
-    const lastRow = hotInstance.countRows() - 1;
-    hotInstance.updateSettings({
-      minSpareRows: 0,
-    });
-    const emptyRowCount = hotInstance.countEmptyRows(true);
-    hotInstance.alter('remove_row', (lastRow - emptyRowCount) + 1, emptyRowCount);
-    hotInstance.validateCells((isValid) => {
-      const { changes, createdRecords } = this.state;
-      const { handleSaveChanges } = this.props;
-      if (isValid) {
-        handleSaveChanges(changes, cleanup(createdRecords), this.resetChanges);
-      }
-    });
-    hotInstance.updateSettings({
-      minSpareRows: 1,
-    });
+    const { table, showNotification } = this.props;
+
+    if (table.get('fields') && table.get('fields').size) {
+      const hotInstance = this.hot.hotInstance;
+      const lastRow = hotInstance.countRows() - 1;
+      hotInstance.updateSettings({
+        minSpareRows: 0,
+      });
+      const emptyRowCount = hotInstance.countEmptyRows(true);
+      hotInstance.alter('remove_row', (lastRow - emptyRowCount) + 1, emptyRowCount);
+      hotInstance.validateCells((isValid) => {
+        const { changes, createdRecords } = this.state;
+        const { handleSaveChanges } = this.props;
+        if (isValid) {
+          handleSaveChanges(changes, cleanup(createdRecords), this.resetChanges);
+        } else {
+          showNotification('You have entered invalid data, please edit or remove row.');
+        }
+      });
+      hotInstance.updateSettings({
+        minSpareRows: 1,
+      });
+    } else {
+      showNotification('There is no column.');
+    }
   }
 
   props: TableEditProps
