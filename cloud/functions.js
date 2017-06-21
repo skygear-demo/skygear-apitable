@@ -41,6 +41,7 @@ async function fetchTable(id, token) {
   const tableRecordQuery = (new skygear.Query(TableRecord))
     .equalTo('table', id)
     .addAscending('_created_at');
+  tableRecordQuery.limit = 1000;
   const tableRecordQueryResult = await skygearDB.query(tableRecordQuery);
 
   const fields = tableQueryResult[0].fields.map((field) => field.data);

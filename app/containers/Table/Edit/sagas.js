@@ -88,6 +88,11 @@ export function* saveTableRecords({ payload: { id, changes, createdRecords }, re
   const createdRecordsIds = Object.keys(createdRecords);
   const recordsToSave = [];
   const recordsToDelete = [];
+  const tableReocrdsQuery = (new skygear.Query(TableRecord))
+    .equalTo('table', id)
+    .contains('_id', rowIds);
+  tableReocrdsQuery.limit = 1000;
+  const tableReocrdsQueryResult = yield call([skygear.privateDB, skygear.privateDB.query], tableReocrdsQuery);
 
   try {
     /* Process changes for existing records */
@@ -95,17 +100,16 @@ export function* saveTableRecords({ payload: { id, changes, createdRecords }, re
       const rowId = rowIds[i];
       const isDeleteRequest = changes[rowId].$delete;
 
-      const tableRecordQuery = (new skygear.Query(TableRecord))
-        .equalTo('table', id)
-        .equalTo('_id', rowId);
-      const tableRecordQueryResult = yield call([skygear.privateDB, skygear.privateDB.query], tableRecordQuery);
-      if (tableRecordQueryResult[0]) {
+      const rowData = tableReocrdsQueryResult
+        .filter((row) => row._id === rowId)[0];
+
+      if (rowData) {
         if (isDeleteRequest) {
           // User requested to delete a row
-          recordsToDelete.push(tableRecordQueryResult[0]);
+          recordsToDelete.push(rowData);
         } else {
           // User requested to edit a row
-          const tableRecord = tableRecordQueryResult[0];
+          const tableRecord = rowData;
           tableRecord.data = {
             ...tableRecord.data,
             ...changes[rowId],
@@ -126,11 +130,10 @@ export function* saveTableRecords({ payload: { id, changes, createdRecords }, re
     }
 
     if (recordsToSave.length > 0) {
-      // Fetch the table, and save it to update updatedAt
-      const tableQuery = (new skygear.Query(Table))
-        .equalTo('_id', id);
-      const tableQueryResult = yield call([skygear.privateDB, skygear.privateDB.query], tableQuery);
-      const table = tableQueryResult[0];
+      /* Save the table once to update updateAt */
+      const table = new Table({
+        _id: `table/${id}`,
+      });
 
       yield call([skygear.privateDB, skygear.privateDB.save], [table, ...recordsToSave]);
     }
@@ -140,7 +143,6 @@ export function* saveTableRecords({ payload: { id, changes, createdRecords }, re
     }
 
     yield put(saveTableRecordsSuccess());
-    yield put(loadTableRecordsAction(id));
     resolve();
   } catch (error) {
     reject();

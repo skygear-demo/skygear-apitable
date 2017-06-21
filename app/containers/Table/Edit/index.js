@@ -10,7 +10,6 @@ import { APP_NAME } from '../../../configs';
 import {
   showDialog as showDialogAction,
   hideDialog as hideDialogAction,
-  loadTableRecords as loadTableRecordsAction,
   loadMoreTableRecords as loadMoreTableRecordsAction,
   saveTableRecords as saveTableRecordsAction,
   addTableField as addTableFieldAction,
@@ -32,7 +31,6 @@ type TableEditContainerProps = {
   showDialog: Function,
   hideDialog: Function,
   showNotification: Function,
-  loadTableRecords: Function,
   loadMoreTableRecords: Function,
   saveTableRecords: Function,
   addTableField: Function,
@@ -79,7 +77,7 @@ class TableEditContainer extends Component {
   }
 
   handleSaveChanges = (changes, createdRecords, resetChanges) => {
-    const { params: { id }, loadTableRecords, saveTableRecords, showNotification } = this.props;
+    const { params: { id }, saveTableRecords, showNotification } = this.props;
     const hasChanges = !!(Object.keys(changes).length + Object.keys(createdRecords).length);
 
     if (hasChanges) {
@@ -89,7 +87,6 @@ class TableEditContainer extends Component {
       .then(() => {
         showNotification('Changes have been saved successfully!');
         resetChanges();
-        loadTableRecords(id);
       })
       .catch(() => showNotification('Oops! Failed to save changes!'));
     }
@@ -196,7 +193,6 @@ export default connect(
     showDialog: showDialogAction,
     hideDialog: hideDialogAction,
     showNotification: showNotificationAction,
-    loadTableRecords: loadTableRecordsAction,
     loadMoreTableRecords: loadMoreTableRecordsAction,
     saveTableRecords: saveTableRecordsAction,
     addTableField: addTableFieldAction,
