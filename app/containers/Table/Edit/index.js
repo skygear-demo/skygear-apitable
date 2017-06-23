@@ -77,7 +77,7 @@ class TableEditContainer extends Component {
   }
 
   handleSaveChanges = (changes, createdRecords, resetChanges) => {
-    const { params: { id }, saveTableRecords, showNotification } = this.props;
+    const { params: { id }, saveTableRecords, loadMoreTableRecords, showNotification } = this.props;
     const hasChanges = !!(Object.keys(changes).length + Object.keys(createdRecords).length);
 
     if (hasChanges) {
@@ -85,8 +85,9 @@ class TableEditContainer extends Component {
         saveTableRecords(id, changes, createdRecords, resolve, reject);
       })
       .then(() => {
-        showNotification('Changes have been saved successfully!');
         resetChanges();
+        loadMoreTableRecords(id, 1);
+        showNotification('Changes have been saved successfully!');
       })
       .catch(() => showNotification('Oops! Failed to save changes!'));
     }

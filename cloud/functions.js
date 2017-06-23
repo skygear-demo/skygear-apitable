@@ -16,7 +16,7 @@ const TableAccessToken = skygear.Record.extend('tableAccessToken');
 const skygearContainer = getContainer();
 const skygearDB = new skygear.Database('_union', skygearContainer);
 
-async function fetchTable(id, token) {
+async function fetchTable(id, token, limit, offset, sort) {
   if (!token || token === '') {
     throw new Error('You must provide a Table Access Token!');
   }
@@ -39,9 +39,17 @@ async function fetchTable(id, token) {
   }
 
   const tableRecordQuery = (new skygear.Query(TableRecord))
-    .equalTo('table', id)
-    .addAscending('_created_at');
-  tableRecordQuery.limit = 1000;
+    .equalTo('table', id);
+
+  if (sort === 'desc') {
+    tableRecordQuery.addDescending('_created_at');
+  } else {
+    tableRecordQuery.addAscending('_created_at');
+  }
+
+  tableRecordQuery.limit = limit;
+  tableRecordQuery.offset = offset;
+  tableRecordQuery.overallCount = true;
   const tableRecordQueryResult = await skygearDB.query(tableRecordQuery);
 
   const fields = tableQueryResult[0].fields.map((field) => field.data);
@@ -59,6 +67,7 @@ async function fetchTable(id, token) {
   const table = {
     name: tableQueryResult[0].name,
     records,
+    recordCount: tableRecordQueryResult.overallCount,
     updatedAt: tableQueryResult[0].updatedAt,
   };
 
@@ -107,10 +116,17 @@ skygearCloud.beforeSave('tableAccessToken', async (record) => {
 
 skygearCloud.handler('api/tables', async (req) => {
   try {
-    const table = await fetchTable(req.url.query.id, req.url.query.token);
+    const { id, token, limit, offset, sort } = req.url.query;
+    const recordLimit = parseInt(limit, 10) || 50;
+    const recordOffset = parseInt(offset, 10) || 0;
+    const recordSort = (sort === 'desc') ? sort : 'asc';
+    const table = await fetchTable(id, token, recordLimit, recordOffset, recordSort);
     return {
       ok: true,
       table,
+      limit: recordLimit,
+      offset: recordOffset,
+      sort: recordSort,
     };
   } catch (error) {
     return {

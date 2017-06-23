@@ -11,15 +11,15 @@ export const cellTypes = {
 
 export const getCellTypeName = (type) => cellTypes[type];
 
-export const imageURLRenderer = (instance, td, row, col, prop, value) => {
+export const imageURLRenderer = (allowEmpty) => (instance, td, row, col, prop, value) => {
   const cell = td;
 
   if (value && (value.startsWith('http://') || value.startsWith('https://'))) {
-    const img = ReactDOMServer.renderToString(<img src={value} alt={value} />);
+    const img = ReactDOMServer.renderToString(<img src={value} alt={value} style={{ maxWidth: 200, maxHeight: 200 }} />);
     cell.innerHTML = img;
   } else {
     cell.innerText = value;
-    if (!instance.isEmptyRow(row)) {
+    if (!allowEmpty && !instance.isEmptyRow(row)) {
       cell.className = 'htInvalid';
     }
   }
@@ -27,10 +27,12 @@ export const imageURLRenderer = (instance, td, row, col, prop, value) => {
   return cell;
 };
 
-export const getCellTypes = (type) => {
+export const getCellTypes = (type, allowEmpty) => {
   switch (type) {
     case 'imageURL':
-      return { renderer: imageURLRenderer };
+      return { renderer: imageURLRenderer(allowEmpty) };
+    case 'numeric':
+      return { type, format: '0.##' };
     default:
       return { type };
   }

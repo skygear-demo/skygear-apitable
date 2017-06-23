@@ -103,7 +103,7 @@ function tableReducer(state = initialState, action) {
     case LOAD_MORE_TABLE_RECORDS_SUCCESS:
       return state
         .set('loading', false)
-        .updateIn(['data', 'records'], (records) => records.concat(fromJS(action.payload.records)))
+        .updateIn(['data', 'records'], (records) => (state.getIn(['data', 'page']) === 1) ? fromJS(action.payload.records) : records.concat(fromJS(action.payload.records)))
         .setIn(['data', 'hasMore'], action.payload.hasMore);
     case SAVE_TABLE_RECORDS:
       return state

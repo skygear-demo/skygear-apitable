@@ -9,6 +9,8 @@ export const nonNullValidator = (value, callback) => {
 export const imageURLValidator = (allowEmpty) => (value, callback) => {
   if (!allowEmpty && (!value || value === '')) {
     callback(false);
+  } else if (allowEmpty && (!value || value === '')) {
+    callback(true);
   }
 
   if (value) {

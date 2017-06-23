@@ -58,15 +58,6 @@ module.exports = (options) => ({
       query: {
         limit: 10000,
       },
-    }, {
-      test: require.resolve('numbro'),
-      loader: 'expose-loader?numbro',
-    }, {
-      test: require.resolve('pikaday'),
-      loader: 'expose-loader?Pikaday',
-    }, {
-      test: require.resolve('zeroclipboard'),
-      loader: 'expose-loader?ZeroClipboard',
     }],
   },
   plugins: options.plugins.concat([

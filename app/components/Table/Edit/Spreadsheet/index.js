@@ -37,7 +37,7 @@ class Spreadsheet extends Component {
           root="hot"
           ref={hotRef}
           colHeaders={fields.toJS().map((field) => `${field.name} [${getCellTypeName(field.type)}]`)}
-          columns={fields.toJS().map((field) => ({ data: field.data, ...getCellTypes(field.type), ...getCellValidators(field.type, field.allowEmpty), allowEmpty: field.allowEmpty }))}
+          columns={fields.toJS().map((field) => ({ data: field.data, ...getCellTypes(field.type, field.allowEmpty), ...getCellValidators(field.type, field.allowEmpty), allowEmpty: field.allowEmpty }))}
           data={records.toJS()}
           rowHeaders
           contextMenu={contextMenu()}
