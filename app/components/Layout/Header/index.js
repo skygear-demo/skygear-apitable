@@ -46,6 +46,7 @@ class Header extends Component {
         <NavigationMenu
           open={this.state.open}
           handleToggle={this.handleToggle}
+          recentTables={localStorage.getItem('apitable-recent-table')}
         />
         <AppBar
           title={<SanitizedLink to="/">APITable</SanitizedLink>}

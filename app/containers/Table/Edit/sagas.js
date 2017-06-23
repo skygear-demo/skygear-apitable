@@ -62,6 +62,12 @@ export function* loadTableRecords({ payload: { id } }) {
 
     const hasMore = tableRecordQueryResult.overallCount > 50;
 
+    const recentTable = JSON.parse(localStorage.getItem('apitable-recent-table')) || { tables: [] };
+    recentTable.tables = recentTable.tables.filter((_table) => _table.id !== table.id);
+    recentTable.tables.unshift({ id: table.id, name: table.name });
+    recentTable.tables = recentTable.tables.slice(0, 20);
+    localStorage.setItem('apitable-recent-table', JSON.stringify(recentTable));
+
     yield put(loadTableRecordsSuccess(table, hasMore));
   } catch (error) {
     if (error instanceof NotFoundError) {
