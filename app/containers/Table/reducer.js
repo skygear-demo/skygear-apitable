@@ -44,6 +44,7 @@ const initialState = fromJS({
     page: 1,
     hasMore: false,
     records: [],
+    recordCount: 0,
   },
   loading: true,
   saving: false,
@@ -95,6 +96,7 @@ function tableReducer(state = initialState, action) {
           updatedAt: action.payload.updatedAt,
           page: state.getIn(['data', 'page']),
           hasMore: action.payload.hasMore,
+          recordCount: action.payload.recordCount,
         }));
     case LOAD_MORE_TABLE_RECORDS:
       return state

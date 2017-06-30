@@ -68,7 +68,7 @@ export function* loadTableRecords({ payload: { id } }) {
     recentTable.tables = recentTable.tables.slice(0, 20);
     localStorage.setItem('apitable-recent-table', JSON.stringify(recentTable));
 
-    yield put(loadTableRecordsSuccess(table, hasMore));
+    yield put(loadTableRecordsSuccess(table, hasMore, tableRecordQueryResult.overallCount));
   } catch (error) {
     if (error instanceof NotFoundError) {
       yield put(push('/errors/404'));

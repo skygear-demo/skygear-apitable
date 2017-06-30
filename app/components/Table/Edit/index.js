@@ -5,6 +5,7 @@ import { cleanup } from 'utils/helpers';
 import Layout from '../../Layout';
 import Loading from '../../Loading';
 import Toolbar from './Toolbar';
+import SummaryBar from './SummaryBar';
 import Container from './Container';
 import GetStarted from '../GetStarted';
 import Spreadsheet from './Spreadsheet';
@@ -219,7 +220,7 @@ class TableEdit extends Component {
     const { loading, table, saving, showDialog, hideDialog, handleAddTableField } = this.props;
 
     return (
-      <Layout>
+      <Layout hideFooter>
         <Container style={{ display: 'flex', flexDirection: 'column' }}>
           <div>
             <FlatButton
@@ -251,6 +252,7 @@ class TableEdit extends Component {
               handleScroll={this.handleScroll}
             /> : defaultMessage(loading)}
         </Container>
+        <SummaryBar recordCount={table.get('recordCount')} />
       </Layout>
     );
   }

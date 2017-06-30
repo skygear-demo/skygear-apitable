@@ -125,7 +125,7 @@ export function loadTableRecords(id) {
   };
 }
 
-export function loadTableRecordsSuccess({ id, name, fields, records, tokens, updatedAt }, hasMore) {
+export function loadTableRecordsSuccess({ id, name, fields, records, tokens, updatedAt }, hasMore, recordCount) {
   return {
     type: LOAD_TABLE_RECORDS_SUCCESS,
     payload: {
@@ -136,6 +136,7 @@ export function loadTableRecordsSuccess({ id, name, fields, records, tokens, upd
       tokens,
       updatedAt,
       hasMore,
+      recordCount,
     },
   };
 }
