@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import _ from 'lodash';
+import { fromJS } from 'immutable';
 import FlatButton from 'material-ui/FlatButton';
 import { cleanup } from 'utils/helpers';
 import Layout from '../../Layout';
@@ -140,7 +141,6 @@ class TableEdit extends Component {
 
       if (record) {
         const recordId = record.get('_recordId');
-        newChanges[recordId] = { $delete: true };
         deletedRecords.push(recordId);
       } else {
         delete createdRecords[index + i];
@@ -180,10 +180,10 @@ class TableEdit extends Component {
       const emptyRowCount = hotInstance.countEmptyRows(true);
       hotInstance.alter('remove_row', (lastRow - emptyRowCount) + 1, emptyRowCount);
       hotInstance.validateCells((isValid) => {
-        const { changes, createdRecords } = this.state;
+        const { changes, createdRecords, deletedRecords } = this.state;
         const { handleSaveChanges } = this.props;
         if (isValid) {
-          handleSaveChanges(changes, cleanup(createdRecords), this.resetChanges);
+          handleSaveChanges(changes, cleanup(createdRecords), deletedRecords, this.resetChanges);
         } else {
           showNotification('You have entered invalid data, please edit or remove rows.');
         }
@@ -212,6 +212,20 @@ class TableEdit extends Component {
         loadMoreTableRecords(table.get('id'), page + 1);
       }
     }
+  };
+
+  withChanges = (_records, changes, deletedRecords) => {
+    const records = _records
+      .filter((record) => !deletedRecords.includes(record.get('_recordId')))
+      .map((record) => {
+        const recordId = record.get('_recordId');
+        if (changes[recordId]) {
+          return record.mergeDeep(fromJS(changes[recordId]));
+        }
+        return record;
+      });
+
+    return records;
   };
 
   props: TableEditProps
@@ -245,6 +259,9 @@ class TableEdit extends Component {
               hotRef={(hot) => { this.hot = hot; }}
               fields={table.get('fields')}
               records={table.get('records')}
+              withChanges={this.withChanges}
+              changes={this.state.changes}
+              deletedRecords={this.state.deletedRecords}
               contextMenu={this.contextMenu}
               handleChange={this.handleChange}
               handleCreateRow={this.handleCreateRow}

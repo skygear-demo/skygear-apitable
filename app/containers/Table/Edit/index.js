@@ -76,13 +76,13 @@ class TableEditContainer extends Component {
     .then(() => showNotification('Columns have been removed successfully!'));
   }
 
-  handleSaveChanges = (changes, createdRecords, resetChanges) => {
+  handleSaveChanges = (changes, createdRecords, deletedRecords, resetChanges) => {
     const { params: { id }, saveTableRecords, loadMoreTableRecords, showNotification } = this.props;
-    const hasChanges = !!(Object.keys(changes).length + Object.keys(createdRecords).length);
+    const hasChanges = !!(Object.keys(changes).length + Object.keys(createdRecords).length + deletedRecords.length);
 
     if (hasChanges) {
       return new Promise((resolve, reject) => {
-        saveTableRecords(id, changes, createdRecords, resolve, reject);
+        saveTableRecords(id, changes, createdRecords, deletedRecords, resolve, reject);
       })
       .then(() => {
         resetChanges();

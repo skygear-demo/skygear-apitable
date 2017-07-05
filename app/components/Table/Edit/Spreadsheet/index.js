@@ -14,6 +14,9 @@ type SpreadsheetProps = {
   hotRef: mixed,
   fields: any,
   records: any,
+  withChanges: Function,
+  changes: mixed,
+  deletedRecords: mixed,
   contextMenu: mixed,
   handleChange: Function,
   handleCreateRow: Function,
@@ -29,7 +32,7 @@ class Spreadsheet extends Component {
   props: SpreadsheetProps
 
   render() {
-    const { hotRef, fields, records, contextMenu, handleChange, handleCreateRow, handleRemoveRow, handleScroll } = this.props;
+    const { hotRef, fields, records, withChanges, changes, deletedRecords, contextMenu, handleChange, handleCreateRow, handleRemoveRow, handleScroll } = this.props;
 
     return (
       <HotTableContainer>
@@ -38,7 +41,7 @@ class Spreadsheet extends Component {
           ref={hotRef}
           colHeaders={fields.toJS().map((field) => `${field.name} [${getCellTypeName(field.type)}]`)}
           columns={fields.toJS().map((field) => ({ data: field.data, ...getCellTypes(field.type, field.allowEmpty), ...getCellValidators(field.type, field.allowEmpty), allowEmpty: field.allowEmpty }))}
-          data={records.toJS()}
+          data={withChanges(records, changes, deletedRecords).toJS()}
           rowHeaders
           contextMenu={contextMenu()}
           stretchH="all"

@@ -106,7 +106,8 @@ function tableReducer(state = initialState, action) {
       return state
         .set('loading', false)
         .updateIn(['data', 'records'], (records) => (state.getIn(['data', 'page']) === 1) ? fromJS(action.payload.records) : records.concat(fromJS(action.payload.records)))
-        .setIn(['data', 'hasMore'], action.payload.hasMore);
+        .setIn(['data', 'hasMore'], action.payload.hasMore)
+        .setIn(['data', 'recordCount'], action.payload.recordCount);
     case SAVE_TABLE_RECORDS:
       return state
         .set('saving', true);

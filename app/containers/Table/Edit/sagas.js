@@ -86,11 +86,14 @@ export function* loadMoreTableRecords({ payload: { id, page } }) {
   const records = tableRecordQueryResult.map((record) => ({ _recordId: record._id, ...record.data }));
   const hasMore = tableRecordQueryResult.overallCount > (page * 50);
 
-  yield put(loadMoreTableRecordsSuccess(records, hasMore));
+  yield put(loadMoreTableRecordsSuccess(records, hasMore, tableRecordQueryResult.overallCount));
 }
 
-export function* saveTableRecords({ payload: { id, changes, createdRecords }, resolve, reject }) {
-  const rowIds = Object.keys(changes);
+export function* saveTableRecords({ payload: { id, changes, createdRecords, deletedRecords }, resolve, reject }) {
+  const rowIds = [
+    ...Object.keys(changes),
+    ...deletedRecords,
+  ];
   const createdRecordsIds = Object.keys(createdRecords);
   const recordsToSave = [];
   const recordsToDelete = [];
@@ -104,7 +107,7 @@ export function* saveTableRecords({ payload: { id, changes, createdRecords }, re
     /* Process changes for existing records */
     for (let i = 0; i < rowIds.length; i += 1) {
       const rowId = rowIds[i];
-      const isDeleteRequest = changes[rowId].$delete;
+      const isDeleteRequest = deletedRecords.includes(rowId);
 
       const rowData = tableReocrdsQueryResult
         .filter((row) => row._id === rowId)[0];

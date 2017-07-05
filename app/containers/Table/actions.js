@@ -151,23 +151,25 @@ export function loadMoreTableRecords(id, page = 2) {
   };
 }
 
-export function loadMoreTableRecordsSuccess(records, hasMore) {
+export function loadMoreTableRecordsSuccess(records, hasMore, recordCount) {
   return {
     type: LOAD_MORE_TABLE_RECORDS_SUCCESS,
     payload: {
       records,
       hasMore,
+      recordCount,
     },
   };
 }
 
-export function saveTableRecords(id, changes, createdRecords, resolve, reject) {
+export function saveTableRecords(id, changes, createdRecords, deletedRecords, resolve, reject) {
   return {
     type: SAVE_TABLE_RECORDS,
     payload: {
       id,
       changes,
       createdRecords,
+      deletedRecords,
     },
     resolve,
     reject,
