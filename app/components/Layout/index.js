@@ -9,13 +9,14 @@ import Footer from './Footer';
 
 type LayoutProps = {
   title: string,
+  hideHeader?: boolean,
   hideFooter?: boolean,
   children: mixed
 }
 
-const Layout = ({ title, hideFooter = false, children }: LayoutProps) => (
+const Layout = ({ title, hideHeader = false, hideFooter = false, children }: LayoutProps) => (
   <Wrapper>
-    <Header title={title} />
+    {!hideHeader && <Header title={title} />}
     {children}
     {!hideFooter && <Footer />}
     <Notification />

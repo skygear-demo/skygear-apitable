@@ -226,6 +226,7 @@
     "moment": "^2.18.1",
     "react": "15.4.1",
     "react-dom": "15.4.1",
+    "react-flexbox-grid": "^1.1.3",
     "react-ga": "^2.2.0",
     "react-handsontable": "^0.2.1",
     "react-helmet": "3.2.2",

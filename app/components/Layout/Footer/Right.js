@@ -1,8 +1,9 @@
 import styled from 'styled-components';
 
-const Wrapper = styled.div`
+const Right = styled.div`
   display: flex;
   justify-content: space-between;
+  min-width: 400px;
 `;
 
-export default Wrapper;
+export default Right;

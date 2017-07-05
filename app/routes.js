@@ -4,7 +4,15 @@
 // about the code splitting business
 import { getAsyncInjectors } from 'utils/asyncInjectors';
 
-const toDefaultRoute = (nextState, replace) => replace('/tables');
+async function toDefaultRoute(nextState, replace, callback) {
+  const skygear = await import('skygear');
+  const loggedIn = !!skygear.currentUser;
+
+  if (loggedIn) {
+    replace('/tables');
+  }
+  callback();
+}
 
 const getNextRoute = (loggedIn, nextPath) => {
   const authRoutes = ['/account/login', '/account/register'];
@@ -53,6 +61,19 @@ export default function createRoutes(store) {
       path: '/',
       name: 'home',
       onEnter: toDefaultRoute,
+      getComponent(nextState, cb) {
+        const importModules = Promise.all([
+          import('components/Landing'),
+        ]);
+
+        const renderRoute = loadModule(cb);
+
+        importModules.then(([component]) => {
+          renderRoute(component);
+        });
+
+        importModules.catch(errorLoading);
+      },
     }, {
       path: '/account/login',
       name: 'loginPage',
