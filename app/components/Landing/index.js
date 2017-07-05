@@ -1,4 +1,5 @@
 import React from 'react';
+import ReactGA from 'react-ga';
 import styled from 'styled-components';
 import { Row, Col } from 'react-flexbox-grid';
 import Layout from '../Layout';
@@ -16,6 +17,13 @@ import NewsFeed from './NewsFeed.png';
 import AnyPrototype from './AnyPrototype.png';
 import ReadingList from './ReadingList.png';
 
+const trackTryBtnClick = () => {
+  ReactGA.event({
+    category: 'User',
+    action: 'Click Try Button'
+  });
+};
+
 const Heading = styled.h1`
   font-weight: 400;
   margin: 0;
@@ -29,7 +37,7 @@ const Description = styled.div`
 const Landing = () => (
   <Layout hideHeader>
     <Header>
-      <Jumbotron />
+      <Jumbotron trackTryBtnClick={trackTryBtnClick} />
     </Header>
 
     <Row center="xs" style={{ background: '#FFF', padding: '3rem 0' }}>
@@ -93,7 +101,7 @@ const Landing = () => (
       </Col>
       <Col md={1} xs={0}></Col>
       <Col xs={12} style={{ marginTop: '2rem' }}>
-        <Button to="/tables">TRY IT NOW</Button>
+        <Button to="/tables" onClick={trackTryBtnClick}>TRY IT NOW</Button>
       </Col>
     </Row>
   </Layout>

@@ -20,7 +20,11 @@ const TopImageContainer = styled.div`
   margin: 1.5rem 0;
 `;
 
-const Jumbotron = () => (
+type JumbotronProps = {
+  trackTryBtnClick: Function
+}
+
+const Jumbotron = ({ trackTryBtnClick }: JumbotronProps) => (
   <Wrapper>
     <Title>Next Generation of API.</Title>
     <SubTitle>Create, edit and organize all data in Tables.</SubTitle>
@@ -29,7 +33,7 @@ const Jumbotron = () => (
     </TopImageContainer>
     <SubTitle>From Table → JSON</SubTitle>
     <br />
-    <Button to="/tables">TRY IT OUT NOW!</Button>
+    <Button to="/tables" onClick={trackTryBtnClick}>TRY IT OUT NOW!</Button>
   </Wrapper>
 );
 
