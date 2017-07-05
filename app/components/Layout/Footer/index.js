@@ -12,7 +12,7 @@ const Footer = () => (
     <Row between="sm">
       <Col>
         <Left>
-          <img src={OurskyLogo} alt="Oursky" />
+          <a href="https://oursky.com/" target="_blank"><img src={OurskyLogo} alt="Oursky" /></a>
           <small>DEVELOP WITH PASSION</small>
         </Left>
       </Col>
@@ -21,24 +21,24 @@ const Footer = () => (
           <Col>
             <Heading>About</Heading>
             <Links style={{ minWidth: 150 }}>
-              <LinksItem><a href="">About APITable</a></LinksItem>
-              <LinksItem><a href="">Contact</a></LinksItem>
+              <LinksItem><a href="/">About APITable</a></LinksItem>
+              <LinksItem><a href="mailto:support+apitable@oursky.com">Contact</a></LinksItem>
             </Links>
           </Col>
           <Col>
             <Heading>Other Tools and Products</Heading>
             <Links>
-              <LinksItem><a href="https://skygear.io/">Skygear</a></LinksItem>
-              <LinksItem><a href="https://makeappicon.com/">Makeappicon</a></LinksItem>
-              <LinksItem><a href="https://appsite.skygear.io/">Appsite</a></LinksItem>
-              <LinksItem><a href="https://mockuphone.com/">MockUPhone</a></LinksItem>
+              <LinksItem><a href="https://skygear.io/" target="_blank">Skygear</a></LinksItem>
+              <LinksItem><a href="https://makeappicon.com/" target="_blank">Makeappicon</a></LinksItem>
+              <LinksItem><a href="https://appsite.skygear.io/" target="_blank">Appsite</a></LinksItem>
+              <LinksItem><a href="https://mockuphone.com/" target="_blank">MockUPhone</a></LinksItem>
             </Links>
           </Col>
         </Row>
       </Col>
     </Row>
     <Row style={{ margin: '1rem 0' }}>
-      <small>&copy; 2008-2017 All rights reserved Oursky Ltd.</small>
+      <small>&copy; 2008-2017 All rights reserved <a href="https://oursky.com/" target="_blank">Oursky Ltd.</a></small>
     </Row>
   </Outer>
 );

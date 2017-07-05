@@ -5,7 +5,7 @@ const Left = styled.div`
   align-items: flex-start;
   flex-direction: column;
 
-  & > img {
+  & > a > img {
     width: 100px;
   }
 
