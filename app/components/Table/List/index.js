@@ -32,7 +32,8 @@ type TableListProps = {
 
 class TableList extends Component {
   shouldComponentUpdate(nextProps) {
-    return (!this.props.list.equals(nextProps.list));
+    const { list, hasMore } = this.props;
+    return ((list.size === 0 && hasMore) || !this.props.list.equals(nextProps.list));
   }
 
   props: TableListProps

@@ -2,6 +2,7 @@ import React from 'react';
 import FlatButton from 'material-ui/FlatButton';
 import AddIcon from 'material-ui/svg-icons/content/add-circle';
 import UpdateIcon from 'material-ui/svg-icons/action/update';
+import PreviewIcon from 'material-ui/svg-icons/image/remove-red-eye';
 import SaveIcon from 'material-ui/svg-icons/file/cloud-upload';
 import RaisedButton from 'material-ui/RaisedButton';
 import { Toolbar, ToolbarGroup } from 'material-ui/Toolbar';
@@ -10,12 +11,13 @@ import Time from 'components/Time';
 type TableEditToolbarProps = {
   showDialog: Function,
   handleSaveChanges: Function,
+  previewChanges: Function,
   updatedAt: string,
   disabled: boolean,
   saving: boolean
 }
 
-const TableEditToolbar = ({ showDialog, handleSaveChanges, updatedAt, disabled, saving }: TableEditToolbarProps) => (
+const TableEditToolbar = ({ showDialog, handleSaveChanges, previewChanges, updatedAt, disabled, saving }: TableEditToolbarProps) => (
   <div>
     <Toolbar
       style={{ paddingRight: 0, backgroundColor: 'none', marginBottom: '5px' }}
@@ -34,10 +36,17 @@ const TableEditToolbar = ({ showDialog, handleSaveChanges, updatedAt, disabled, 
           <UpdateIcon /> Last Update: <Time explicit>{updatedAt}</Time>
         </div>
         <RaisedButton
+          label="Preview"
+          icon={<PreviewIcon />}
+          onClick={previewChanges}
+          disabled={saving || disabled}
+        />
+        <RaisedButton
           label="Save"
           icon={<SaveIcon />}
           onClick={handleSaveChanges}
           disabled={saving || disabled}
+          style={{ marginLeft: 0 }}
         />
         <RaisedButton
           label="Get End Point"

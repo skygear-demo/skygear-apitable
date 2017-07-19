@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import _ from 'lodash';
 import { fromJS } from 'immutable';
 import FlatButton from 'material-ui/FlatButton';
+import RaisedButton from 'material-ui/RaisedButton';
 import { cleanup } from 'utils/helpers';
 import Layout from '../../Layout';
 import Loading from '../../Loading';
@@ -23,7 +24,8 @@ type TableEditProps = {
   handleAddTableField: Function,
   handleSaveChanges: Function,
   setFieldPendingRemove: Function,
-  loadMoreTableRecords: Function
+  loadMoreTableRecords: Function,
+  updateCache: Function
 }
 
 class TableEdit extends Component {
@@ -228,6 +230,13 @@ class TableEdit extends Component {
     return records;
   };
 
+  previewChanges = () => {
+    const { showDialog, updateCache } = this.props;
+    const { changes, createdRecords, deletedRecords } = this.state;
+    updateCache(changes, cleanup(createdRecords), deletedRecords);
+    showDialog('preview')();
+  }
+
   props: TableEditProps
 
   render() {
@@ -236,7 +245,7 @@ class TableEdit extends Component {
     return (
       <Layout hideFooter>
         <Container style={{ display: 'flex', flexDirection: 'column' }}>
-          <div>
+          <div style={{ display: 'flex', justifyContent: 'space-between' }}>
             <FlatButton
               label={table.get('name')}
               style={{ margin: 0 }}
@@ -244,11 +253,19 @@ class TableEdit extends Component {
               onClick={showDialog('renameTable')}
               disabled={loading}
             />
+            <RaisedButton
+              label="Feedback"
+              secondary
+              href="https://docs.google.com/forms/d/e/1FAIpQLSeHUPZRPhNPUgvrssIzJBjplHvjZa70K0_WzUzqw2cXu7anMg/viewform"
+              target="_blank"
+              style={{ marginRight: 24 }}
+            />
           </div>
           <Toolbar
             showDialog={showDialog}
             hideDialog={hideDialog}
             handleAddTableField={handleAddTableField}
+            previewChanges={this.previewChanges}
             handleSaveChanges={this.handleSaveChanges}
             updatedAt={table.get('updatedAt')}
             disabled={loading}

@@ -25,6 +25,7 @@ import {
   ISSUE_TOKEN_SUCCESS,
   REVOKE_TOKEN_SUCCESS,
   RENAME_TABLE,
+  UPDATE_CACHE,
 } from './constants';
 
 const initialState = fromJS({
@@ -35,10 +36,11 @@ const initialState = fromJS({
     removeField: false,
     getEndPoint: false,
     renameTable: false,
+    preview: false,
   },
   list: [],
   page: 1,
-  hasMore: false,
+  hasMore: true,
   data: {
     name: 'Loading ...',
     page: 1,
@@ -50,6 +52,11 @@ const initialState = fromJS({
   saving: false,
   pendingDeleteTable: false,
   pendingRemoveField: [],
+  cache: {
+    changes: {},
+    createdRecords: {},
+    deletedRecords: [],
+  },
 });
 
 function tableReducer(state = initialState, action) {
@@ -135,6 +142,9 @@ function tableReducer(state = initialState, action) {
     case RENAME_TABLE:
       return state
         .setIn(['data', 'name'], action.payload.name);
+    case UPDATE_CACHE:
+      return state
+        .set('cache', fromJS(action.payload.cache));
     default:
       return state;
   }

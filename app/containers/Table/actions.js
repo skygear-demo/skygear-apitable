@@ -22,6 +22,7 @@ import {
   REVOKE_TOKEN,
   REVOKE_TOKEN_SUCCESS,
   RENAME_TABLE,
+  UPDATE_CACHE,
 } from './constants';
 
 export function showDialog(name) {
@@ -267,5 +268,18 @@ export function renameTable(id, name, resolve, reject) {
     },
     resolve,
     reject,
+  };
+}
+
+export function updateCache(changes, createdRecords, deletedRecords) {
+  return {
+    type: UPDATE_CACHE,
+    payload: {
+      cache: {
+        changes,
+        createdRecords,
+        deletedRecords,
+      },
+    },
   };
 }

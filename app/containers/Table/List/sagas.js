@@ -1,6 +1,7 @@
 /* eslint-disable no-underscore-dangle */
 
 import skygear from 'skygear';
+import ReactGA from 'react-ga';
 import { takeEvery } from 'redux-saga';
 import { take, call, put, cancel } from 'redux-saga/effects';
 import { LOCATION_CHANGE } from 'react-router-redux';
@@ -21,6 +22,11 @@ const TableAccessToken = skygear.Record.extend('tableAccessToken');
 
 export function* createTable({ payload: { name }, resolve, reject }) {
   try {
+    ReactGA.event({
+      category: 'Table',
+      action: 'Create a new table',
+    });
+
     const table = yield call([skygear.privateDB, skygear.privateDB.save], new Table({
       name,
       fields: [],
@@ -34,6 +40,11 @@ export function* createTable({ payload: { name }, resolve, reject }) {
 
 export function* deleteTable({ payload: { id }, resolve, reject }) {
   if (id) {
+    ReactGA.event({
+      category: 'Table',
+      action: 'Delete a table',
+    });
+
     yield call([skygear.privateDB, skygear.privateDB.save], new Table({
       _id: `table/${id}`,
       deletedAt: new Date(),

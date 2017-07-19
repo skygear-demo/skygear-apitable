@@ -3,6 +3,7 @@
 import React from 'react';
 import { reduxForm, Field } from 'redux-form/immutable';
 import { Link } from 'react-router';
+import ReactGA from 'react-ga';
 import { CardActions } from 'material-ui/Card';
 import PersonIcon from 'material-ui/svg-icons/social/person';
 import EmailIcon from 'material-ui/svg-icons/communication/email';
@@ -14,6 +15,13 @@ import CardLayout from '../../CardLayout';
 import Heading from '../Heading';
 import InputGroup from '../InputGroup';
 import ButtonGroup from '../ButtonGroup';
+
+const trackSignupBtn = () => {
+  ReactGA.event({
+    category: 'User',
+    action: 'Click Sign Up Button',
+  });
+};
 
 const validate = (values) => {
   const errors = {};
@@ -69,6 +77,7 @@ const Login = ({ handleSubmit, submitting }: LoginProps) => (
           <FlatButton
             containerElement={<Link to="/account/register" />}
             label="Sign up for free"
+            onTouchTap={trackSignupBtn}
           />
         </ButtonGroup>
       </CardActions>

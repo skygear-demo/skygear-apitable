@@ -1,4 +1,5 @@
 import skygear from 'skygear';
+import ReactGA from 'react-ga';
 import { takeLatest } from 'redux-saga';
 import { take, call, cancel } from 'redux-saga/effects';
 import { LOCATION_CHANGE } from 'react-router-redux';
@@ -10,6 +11,11 @@ export function* accountLogin({
   reject,
 }) {
   try {
+    ReactGA.event({
+      category: 'User',
+      action: 'Login',
+    });
+
     yield call([skygear, skygear.loginWithEmail], email, password);
     resolve();
   } catch ({ error: { message } }) {

@@ -17,7 +17,7 @@ const Footer = () => (
         </Left>
       </Col>
       <Col>
-        <Row between="sm">
+        <Row between="sm" style={{ padding: '0 8px' }}>
           <Col>
             <Heading>About</Heading>
             <Links style={{ minWidth: 150 }}>
@@ -37,7 +37,7 @@ const Footer = () => (
         </Row>
       </Col>
     </Row>
-    <Row style={{ margin: '1rem 0' }}>
+    <Row between="sm" style={{ margin: '1rem -8px' }}>
       <small>&copy; 2008-2017 All rights reserved <a href="https://oursky.com/" target="_blank">Oursky Ltd.</a></small>
     </Row>
   </Outer>

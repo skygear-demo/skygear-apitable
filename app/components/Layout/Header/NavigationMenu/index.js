@@ -24,6 +24,12 @@ const NavigationMenu = ({ open, handleToggle, recentTables }: NavigationMenuProp
       containerElement={<Link to="/tables" />}
       onClick={handleToggle}
     />
+    <MenuItem
+      primaryText="Feedback"
+      href="https://docs.google.com/forms/d/e/1FAIpQLSeHUPZRPhNPUgvrssIzJBjplHvjZa70K0_WzUzqw2cXu7anMg/viewform"
+      target="_blank"
+      onClick={handleToggle}
+    />
     {recentTables && JSON.parse(recentTables).tables.length &&
       <div>
         <Subheader>Recent</Subheader>

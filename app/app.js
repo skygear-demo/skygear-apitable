@@ -28,9 +28,10 @@ import App from './containers/App';
 // Import selector for `syncHistoryWithStore`
 import { makeSelectLocationState } from './containers/App/selectors';
 
-// Load the favicon file and the .htaccess file
+// Load the favicon file, open graph image and the .htaccess file
 /* eslint-disable import/no-unresolved, import/extensions, import/first */
 import '!file-loader?name=[name].[ext]!./favicon.ico';
+import '!file-loader?name=[name].[ext]!./OGImage.png';
 import 'file-loader?name=[name].[ext]!./.htaccess';
 /* eslint-enable import/no-unresolved, import/extensions, import/first */
 

@@ -2,6 +2,8 @@ import React from 'react';
 import ReactGA from 'react-ga';
 import styled from 'styled-components';
 import { Row, Col } from 'react-flexbox-grid';
+import Paper from 'material-ui/Paper';
+import ArrowIcon from 'material-ui/svg-icons/hardware/keyboard-backspace';
 import Layout from '../Layout';
 import Header from './Header';
 import Jumbotron from './Jumbotron';
@@ -16,11 +18,13 @@ import QATesters from './QATesters.svg';
 import NewsFeed from './NewsFeed.png';
 import AnyPrototype from './AnyPrototype.png';
 import ReadingList from './ReadingList.png';
+import Preview1 from './Preview1.png';
+import Preview2 from './Preview2.png';
 
 const trackTryBtnClick = () => {
   ReactGA.event({
     category: 'User',
-    action: 'Click Try Button'
+    action: 'Click Try Button',
   });
 };
 
@@ -34,19 +38,60 @@ const Description = styled.div`
   margin: 1rem auto;
 `;
 
+const Arrow = styled(ArrowIcon)`
+  transform: rotate(180deg);
+  @media (max-width: 1023px) {
+    transform: rotate(-90deg);
+  }
+`;
+
+const Window = styled.div`
+  border-radius: 6px 6px 0 0;
+  padding-top: 26px;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1), 0 8px 32px rgba(0, 0, 0, 0.12);
+
+  &::before {
+    background: linear-gradient(#f0f0f0, #dedede);
+    border-radius: 6px 6px 0 0;
+    content: ' ';
+    height: 25px;
+    position: absolute;
+    top: 0;
+    width: 100%;
+  }
+`;
+
 const Landing = () => (
   <Layout hideHeader>
     <Header>
       <Jumbotron trackTryBtnClick={trackTryBtnClick} />
     </Header>
 
-    <Row center="xs" style={{ background: '#FFF', padding: '3rem 0' }}>
+    <Row center="xs" middle="xs" style={{ background: '#FFF', padding: '3rem 0' }}>
+      <Col xs={12} md={5}>
+        <Paper zDepth={3} style={{ maxWidth: 500, margin: '1rem auto' }}>
+          <img src={Preview1} alt="" style={{ width: '100%', maxWidth: 500 }} />
+        </Paper>
+      </Col>
+      <Col xs={0} md={1}>
+        <Arrow />
+      </Col>
+      <Col xs={12} md={5}>
+        <div style={{ maxWidth: 500, margin: '1rem auto', textAlign: 'left', position: 'relative' }}>
+          <Window>
+            <img src={Preview2} alt="" style={{ maxWidth: '100%' }} />
+          </Window>
+        </div>
+      </Col>
+    </Row>
+
+    <Row center="xs" style={{ padding: '3rem 0' }}>
       <Col xs={12} style={{ marginBottom: '2rem' }}>
-        <Heading>Why is it good?</Heading>
+        <Heading>How does it help?</Heading>
       </Col>
       <Col md={4} mdOffset={2} xs={12}>
         <img src={NoLearnDatabase} alt="No need to learn about anything about database" />
-        <Description>No need to learn about anything about database</Description>
+        <Description>No need to learn about databases</Description>
       </Col>
       <Col md={4} xs={12}>
         <img src={InstantAPI} alt="Instant API for use" />
@@ -64,7 +109,7 @@ const Landing = () => (
       <Col md={2} xs={0}></Col>
     </Row>
 
-    <Row center="xs" style={{ padding: '3rem 0' }}>
+    <Row center="xs" style={{ background: '#FFF', padding: '3rem 0' }}>
       <Col xs={12} style={{ marginBottom: '2rem' }}>
         <Heading>Who&#39;s APITable for?</Heading>
       </Col>
@@ -83,21 +128,21 @@ const Landing = () => (
       <Col md={1} xs={0}></Col>
     </Row>
 
-    <Row center="xs" style={{ background: '#FFF', padding: '3rem 0', marginBottom: '-2rem' }}>
+    <Row center="xs" style={{ padding: '3rem 0' }}>
       <Col xs={12} style={{ marginBottom: '2rem' }}>
-        <Heading>Use Cases</Heading>
+        <Heading>Use cases</Heading>
       </Col>
       <Col md={3} mdOffset={1}>
         <img src={NewsFeed} alt="News Feed" />
-        <Description>News Feed</Description>
+        <Description>News feeds</Description>
       </Col>
       <Col md={4}>
         <img src={AnyPrototype} alt="Any Prototype" />
-        <Description>Any Prototype</Description>
+        <Description>Prototypes</Description>
       </Col>
       <Col md={3}>
         <img src={ReadingList} alt="Reading List" />
-        <Description>Reading List</Description>
+        <Description>Reading lists</Description>
       </Col>
       <Col md={1} xs={0}></Col>
       <Col xs={12} style={{ marginTop: '2rem' }}>

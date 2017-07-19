@@ -1,6 +1,7 @@
 /* eslint-disable no-underscore-dangle */
 
 import skygear from 'skygear';
+import ReactGA from 'react-ga';
 import { takeEvery } from 'redux-saga';
 import { take, call, put, cancel } from 'redux-saga/effects';
 import { push, LOCATION_CHANGE } from 'react-router-redux';
@@ -90,6 +91,11 @@ export function* loadMoreTableRecords({ payload: { id, page } }) {
 }
 
 export function* saveTableRecords({ payload: { id, changes, createdRecords, deletedRecords }, resolve, reject }) {
+  ReactGA.event({
+    category: 'Table',
+    action: 'Save table records',
+  });
+
   const rowIds = [
     ...Object.keys(changes),
     ...deletedRecords,
@@ -160,6 +166,11 @@ export function* saveTableRecords({ payload: { id, changes, createdRecords, dele
 
 export function* addTableField({ payload: { id, name, type, allowEmpty, data }, resolve, reject }) {
   try {
+    ReactGA.event({
+      category: 'Table',
+      action: 'Add a new column',
+    });
+
     const query = (new skygear.Query(Table))
       .equalTo('_id', id);
     const queryResult = yield call([skygear.privateDB, skygear.privateDB.query], query);
@@ -179,6 +190,11 @@ export function* addTableField({ payload: { id, name, type, allowEmpty, data }, 
 
 export function* removeTableField({ payload: { id, fieldNames }, resolve, reject }) {
   try {
+    ReactGA.event({
+      category: 'Table',
+      action: 'Remove a column',
+    });
+
     const tableQuery = (new skygear.Query(Table))
       .equalTo('_id', id);
     const tableQueryResult = yield call([skygear.privateDB, skygear.privateDB.query], tableQuery);
@@ -194,6 +210,11 @@ export function* removeTableField({ payload: { id, fieldNames }, resolve, reject
 
 export function* issueToken({ payload: { id }, resolve, reject }) {
   try {
+    ReactGA.event({
+      category: 'Table',
+      action: 'Create a token',
+    });
+
     const token = new TableAccessToken({
       table: new skygear.Reference(`table/${id}`),
     });
@@ -207,6 +228,11 @@ export function* issueToken({ payload: { id }, resolve, reject }) {
 
 export function* revokeToken({ payload: { token }, resolve, reject }) {
   try {
+    ReactGA.event({
+      category: 'Table',
+      action: 'Revoke a token',
+    });
+
     yield call([skygear.privateDB, skygear.privateDB.delete], {
       id: `tableAccessToken/${token}`,
     });
@@ -219,6 +245,11 @@ export function* revokeToken({ payload: { token }, resolve, reject }) {
 
 export function* renameTable({ payload: { id, name }, resolve, reject }) {
   try {
+    ReactGA.event({
+      category: 'Table',
+      action: 'Rename a table',
+    });
+
     const tableQuery = (new skygear.Query(Table))
       .equalTo('_id', id);
     const tableQueryResult = yield call([skygear.privateDB, skygear.privateDB.query], tableQuery);

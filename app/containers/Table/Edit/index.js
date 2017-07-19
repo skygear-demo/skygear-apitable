@@ -5,6 +5,7 @@ import AddFieldDialog from 'components/Table/Edit/AddFieldDialog';
 import RemoveFieldDialog from 'components/Table/Edit/RemoveFieldDialog';
 import GetEndPointDialog from 'components/Table/Edit/GetEndPointDialog';
 import RenameTableDialog from 'components/Table/Edit/RenameTableDialog';
+import PreviewDialog from 'components/Table/Edit/PreviewDialog';
 import TableEdit from 'components/Table/Edit';
 import { APP_NAME } from '../../../configs';
 import {
@@ -18,6 +19,7 @@ import {
   issueToken as issueTokenAction,
   revokeToken as revokeTokenAction,
   renameTable as renameTableAction,
+  updateCache as updateCacheAction,
 } from '../actions';
 import { showNotification as showNotificationAction } from '../../Notification/actions';
 
@@ -28,6 +30,7 @@ type TableEditContainerProps = {
   saving: boolean,
   pendingRemoveField: mixed,
   params: any,
+  cache: mixed,
   showDialog: Function,
   hideDialog: Function,
   showNotification: Function,
@@ -39,7 +42,8 @@ type TableEditContainerProps = {
   issueToken: Function,
   revokeToken: Function,
   renameTable: Function,
-  resetForm: Function
+  resetForm: Function,
+  updateCache: Function
 }
 
 class TableEditContainer extends Component {
@@ -134,7 +138,7 @@ class TableEditContainer extends Component {
   hideDialog = (name) => () => this.props.hideDialog(name);
 
   render() {
-    const { params: { id }, dialog, table, loading, saving, setFieldPendingRemove, pendingRemoveField, showNotification, loadMoreTableRecords } = this.props;
+    const { params: { id }, dialog, table, cache, loading, saving, setFieldPendingRemove, pendingRemoveField, showNotification, loadMoreTableRecords, updateCache } = this.props;
 
     return (
       <div>
@@ -161,6 +165,13 @@ class TableEditContainer extends Component {
           handleRevokeToken={this.handleRevokeToken}
         />}
 
+        {!loading && <PreviewDialog
+          table={table}
+          cache={cache}
+          show={dialog.get('preview')}
+          handleClose={this.hideDialog('preview')}
+        />}
+
         <RenameTableDialog
           show={dialog.get('renameTable')}
           handleClose={this.hideDialog('renameTable')}
@@ -175,6 +186,7 @@ class TableEditContainer extends Component {
           setFieldPendingRemove={setFieldPendingRemove}
           showNotification={showNotification}
           loadMoreTableRecords={loadMoreTableRecords}
+          updateCache={updateCache}
           saving={saving}
         />
       </div>
@@ -186,6 +198,7 @@ export default connect(
   (state) => ({
     dialog: state.get('table').get('dialog'),
     table: state.get('table').get('data'),
+    cache: state.get('table').get('cache'),
     loading: state.get('table').get('loading'),
     saving: state.get('table').get('saving'),
     pendingRemoveField: state.get('table').get('pendingRemoveField'),
@@ -203,5 +216,6 @@ export default connect(
     revokeToken: revokeTokenAction,
     renameTable: renameTableAction,
     resetForm: reset,
+    updateCache: updateCacheAction,
   }
 )(TableEditContainer);

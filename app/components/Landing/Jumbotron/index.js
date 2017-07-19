@@ -26,8 +26,8 @@ type JumbotronProps = {
 
 const Jumbotron = ({ trackTryBtnClick }: JumbotronProps) => (
   <Wrapper>
-    <Title>Next Generation of API.</Title>
-    <SubTitle>Create, edit and organize all data in Tables.</SubTitle>
+    <Title>The Next Generation API.</Title>
+    <SubTitle>Create, edit and organize all data in tables.</SubTitle>
     <TopImageContainer>
       <img src={TopImage} alt="APITable" />
     </TopImageContainer>

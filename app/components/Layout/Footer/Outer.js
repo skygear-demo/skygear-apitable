@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 
 const Outer = styled.div`
-  padding: 2rem 24px;
+  padding: 2rem;
   margin-top: 2rem;
   background: #4e4e4e;
   color: #FFF;

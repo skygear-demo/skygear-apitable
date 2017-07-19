@@ -56,7 +56,9 @@ async function fetchTable(id, token, limit, offset, sort) {
 
   const records = tableRecordQueryResult
     .map((_record) => {
-      const record = {};
+      const record = {
+        id: _record._id,
+      };
       for (let i = 0; i < fields.length; i += 1) {
         const field = fields[i];
         record[field] = _record.data[field];
