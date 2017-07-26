@@ -20,9 +20,11 @@ type TableEditProps = {
   saving: boolean,
   showDialog: Function,
   hideDialog: Function,
+  saveBtnRef: any,
   showNotification: Function,
   handleAddTableField: Function,
   handleSaveChanges: Function,
+  handleExportCSV: Function,
   setFieldPendingRemove: Function,
   loadMoreTableRecords: Function,
   updateCache: Function
@@ -240,7 +242,7 @@ class TableEdit extends Component {
   props: TableEditProps
 
   render() {
-    const { loading, table, saving, showDialog, hideDialog, handleAddTableField } = this.props;
+    const { loading, table, saving, showDialog, hideDialog, saveBtnRef, handleAddTableField, handleExportCSV } = this.props;
 
     return (
       <Layout hideFooter>
@@ -264,7 +266,9 @@ class TableEdit extends Component {
           <Toolbar
             showDialog={showDialog}
             hideDialog={hideDialog}
+            saveBtnRef={saveBtnRef}
             handleAddTableField={handleAddTableField}
+            handleExportCSV={handleExportCSV}
             previewChanges={this.previewChanges}
             handleSaveChanges={this.handleSaveChanges}
             updatedAt={table.get('updatedAt')}

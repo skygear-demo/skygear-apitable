@@ -4,6 +4,7 @@
 import React from 'react';
 import reactStringReplace from 'react-string-replace';
 import Dialog from 'material-ui/Dialog';
+import FlatButton from 'material-ui/FlatButton';
 import RaisedButton from 'material-ui/RaisedButton';
 import JSONPreview from './JSONPreview';
 
@@ -35,21 +36,25 @@ const formatDiff = (record, { changes, deletedRecords }) => {
   return JSON.stringify(record, null, 2);
 };
 
-const formatCreatedRecords = (record) => <strong style={{ color: 'green' }}>{JSON.stringify(record, null, 2)}</strong>;
+const formatCreatedRecords = (id, record) => <strong key={id} style={{ color: 'green' }}>{JSON.stringify(record, null, 2)}</strong>;
 
 const displayDiff = (records, cache) => {
   const formattedDiff = [];
   const createdRecordIds = Object.keys(cache.createdRecords);
   records.forEach((record) => formattedDiff.push(formatDiff(record, cache)));
-  createdRecordIds.forEach((id) => formattedDiff.push(formatCreatedRecords(cache.createdRecords[id])));
+  createdRecordIds.forEach((id) => formattedDiff.push(formatCreatedRecords(id, cache.createdRecords[id])));
   return (formattedDiff.length > 0) ? formattedDiff.reduce((prev, curr) => [prev, ', ', curr]) : '';
 };
 
-const actions = (handleClose) => [
-  <RaisedButton
-    label="OK"
-    secondary
+const actions = (handleSave, handleClose) => [
+  <FlatButton
+    label="Cancel"
     onTouchTap={handleClose}
+  />,
+  <RaisedButton
+    label="Save"
+    primary
+    onTouchTap={handleSave}
   />,
 ];
 
@@ -57,13 +62,19 @@ type PreviewDialogProps = {
   show: boolean,
   table: any,
   cache: any,
-  handleClose: Function
+  handleClose: Function,
+  saveBtn: any
 }
 
-const PreviewDialog = ({ show, table, cache, handleClose }: PreviewDialogProps) => (
+const handleSave = (saveBtn, handleClose) => () => {
+  saveBtn.props.onClick();
+  handleClose();
+};
+
+const PreviewDialog = ({ show, table, cache, handleClose, saveBtn }: PreviewDialogProps) => (
   <Dialog
     title="Preview"
-    actions={actions(handleClose)}
+    actions={actions(handleSave(saveBtn, handleClose), handleClose)}
     modal
     open={show}
   >

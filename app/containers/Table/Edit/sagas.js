@@ -14,7 +14,9 @@ import {
   REMOVE_TABLE_FIELD,
   ISSUE_TOKEN,
   REVOKE_TOKEN,
+  SET_TOKEN_WRITABILITY,
   RENAME_TABLE,
+  EXPORT_CSV,
 } from '../constants';
 import {
   loadTableRecords as loadTableRecordsAction,
@@ -23,6 +25,7 @@ import {
   saveTableRecordsSuccess,
   issueTokenSuccess,
   revokeTokenSuccess,
+  exportCSVSuccess,
 } from '../actions';
 
 const Table = skygear.Record.extend('table');
@@ -50,7 +53,7 @@ export function* loadTableRecords({ payload: { id } }) {
       .equalTo('table', id)
       .addDescending('_created_at');
     const tokenQueryResult = yield call([skygear.privateDB, skygear.privateDB.query], tokenQuery);
-    const tokens = tokenQueryResult.map((tokenRecord) => tokenRecord._id);
+    const tokens = tokenQueryResult.map((tokenRecord) => ({ token: tokenRecord._id, writable: tokenRecord.writable }));
 
     const table = {
       id: tableQueryResult[0]._id,
@@ -188,6 +191,18 @@ export function* addTableField({ payload: { id, name, type, allowEmpty, data }, 
   }
 }
 
+export function* setTokenWritability({ payload: { token, writable }, resolve, reject }) {
+  try {
+    yield call([skygear.privateDB, skygear.privateDB.save], new TableAccessToken({
+      _id: `tableAccessToken/${token}`,
+      writable,
+    }));
+    resolve();
+  } catch (error) {
+    reject();
+  }
+}
+
 export function* removeTableField({ payload: { id, fieldNames }, resolve, reject }) {
   try {
     ReactGA.event({
@@ -217,6 +232,7 @@ export function* issueToken({ payload: { id }, resolve, reject }) {
 
     const token = new TableAccessToken({
       table: new skygear.Reference(`table/${id}`),
+      writable: false,
     });
     const savedToken = yield call([skygear.privateDB, skygear.privateDB.save], token);
     yield put(issueTokenSuccess(savedToken._id));
@@ -262,15 +278,38 @@ export function* renameTable({ payload: { id, name }, resolve, reject }) {
   }
 }
 
+export function* exportCSV({ payload: { id }, resolve, reject }) {
+  try {
+    ReactGA.event({
+      category: 'Table',
+      action: 'Export CSV',
+    });
+
+    const tableRecordQuery = (new skygear.Query(TableRecord))
+      .equalTo('table', id)
+      .addAscending('_created_at');
+    tableRecordQuery.limit = Number.MAX_SAFE_INTEGER;
+
+    const tableRecordQueryResult = yield call([skygear.privateDB, skygear.privateDB.query], tableRecordQuery);
+    const records = tableRecordQueryResult.map((record) => ({ ...record.data }));
+    yield put(exportCSVSuccess(records));
+    resolve(records.length);
+  } catch (error) {
+    reject();
+  }
+}
+
 export function* tableEditData() {
   const loadTableRecordsWatcher = yield takeEvery(LOAD_TABLE_RECORDS, loadTableRecords);
   const loadMoreTableRecordsWatcher = yield takeEvery(LOAD_MORE_TABLE_RECORDS, loadMoreTableRecords);
   const saveTableRecordsWatcher = yield takeEvery(SAVE_TABLE_RECORDS, saveTableRecords);
   const addTableFieldWatcher = yield takeEvery(ADD_TABLE_FIELD, addTableField);
+  const setTokenWritabilityWatcher = yield takeEvery(SET_TOKEN_WRITABILITY, setTokenWritability);
   const removeTableFieldWatcher = yield takeEvery(REMOVE_TABLE_FIELD, removeTableField);
   const issueTokenWatcher = yield takeEvery(ISSUE_TOKEN, issueToken);
   const revokeTokenWatcher = yield takeEvery(REVOKE_TOKEN, revokeToken);
   const renameTableWatcher = yield takeEvery(RENAME_TABLE, renameTable);
+  const exportCSVWatcher = yield takeEvery(EXPORT_CSV, exportCSV);
 
   // Suspend execution until location changes
   yield take(LOCATION_CHANGE);
@@ -279,10 +318,12 @@ export function* tableEditData() {
     loadMoreTableRecordsWatcher,
     saveTableRecordsWatcher,
     addTableFieldWatcher,
+    setTokenWritabilityWatcher,
     removeTableFieldWatcher,
     issueTokenWatcher,
     revokeTokenWatcher,
     renameTableWatcher,
+    exportCSVWatcher,
   );
 }
 

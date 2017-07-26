@@ -21,8 +21,12 @@ import {
   ISSUE_TOKEN_SUCCESS,
   REVOKE_TOKEN,
   REVOKE_TOKEN_SUCCESS,
+  SET_TOKEN_WRITABILITY,
   RENAME_TABLE,
   UPDATE_CACHE,
+  SET_TOKEN_FOR_DETAIL,
+  EXPORT_CSV,
+  EXPORT_CSV_SUCCESS,
 } from './constants';
 
 export function showDialog(name) {
@@ -259,6 +263,18 @@ export function revokeTokenSuccess(token) {
   };
 }
 
+export function setTokenWritability(token, writable, resolve, reject) {
+  return {
+    type: SET_TOKEN_WRITABILITY,
+    payload: {
+      token,
+      writable,
+    },
+    resolve,
+    reject,
+  };
+}
+
 export function renameTable(id, name, resolve, reject) {
   return {
     type: RENAME_TABLE,
@@ -280,6 +296,36 @@ export function updateCache(changes, createdRecords, deletedRecords) {
         createdRecords,
         deletedRecords,
       },
+    },
+  };
+}
+
+export function setTokenForDetail(token, writable) {
+  return {
+    type: SET_TOKEN_FOR_DETAIL,
+    payload: {
+      token,
+      writable,
+    },
+  };
+}
+
+export function exportCSV(id, resolve, reject) {
+  return {
+    type: EXPORT_CSV,
+    payload: {
+      id,
+    },
+    resolve,
+    reject,
+  };
+}
+
+export function exportCSVSuccess(exportData) {
+  return {
+    type: EXPORT_CSV_SUCCESS,
+    payload: {
+      exportData,
     },
   };
 }

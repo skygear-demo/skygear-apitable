@@ -39,7 +39,7 @@ class Spreadsheet extends Component {
         <HotTable
           root="hot"
           ref={hotRef}
-          colHeaders={fields.toJS().map((field) => `${field.name} [${getCellTypeName(field.type)}]`)}
+          colHeaders={fields.toJS().map((field) => `${field.name} [${getCellTypeName(field.type)}${field.allowEmpty ? '?' : ''}]`)}
           columns={fields.toJS().map((field) => ({ data: field.data, ...getCellTypes(field.type, field.allowEmpty), ...getCellValidators(field.type, field.allowEmpty), allowEmpty: field.allowEmpty }))}
           data={withChanges(records, changes, deletedRecords).toJS()}
           rowHeaders

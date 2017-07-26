@@ -4,6 +4,7 @@ import AddIcon from 'material-ui/svg-icons/content/add-circle';
 import UpdateIcon from 'material-ui/svg-icons/action/update';
 import PreviewIcon from 'material-ui/svg-icons/image/remove-red-eye';
 import SaveIcon from 'material-ui/svg-icons/file/cloud-upload';
+import ExportIcon from 'material-ui/svg-icons/file/file-download';
 import RaisedButton from 'material-ui/RaisedButton';
 import { Toolbar, ToolbarGroup } from 'material-ui/Toolbar';
 import Time from 'components/Time';
@@ -11,13 +12,15 @@ import Time from 'components/Time';
 type TableEditToolbarProps = {
   showDialog: Function,
   handleSaveChanges: Function,
+  handleExportCSV: Function,
   previewChanges: Function,
   updatedAt: string,
   disabled: boolean,
-  saving: boolean
+  saving: boolean,
+  saveBtnRef: any
 }
 
-const TableEditToolbar = ({ showDialog, handleSaveChanges, previewChanges, updatedAt, disabled, saving }: TableEditToolbarProps) => (
+const TableEditToolbar = ({ showDialog, handleSaveChanges, handleExportCSV, previewChanges, updatedAt, disabled, saving, saveBtnRef }: TableEditToolbarProps) => (
   <div>
     <Toolbar
       style={{ paddingRight: 0, backgroundColor: 'none', marginBottom: '5px' }}
@@ -30,10 +33,17 @@ const TableEditToolbar = ({ showDialog, handleSaveChanges, previewChanges, updat
           onClick={showDialog('addField')}
           disabled={disabled}
         />
+        <FlatButton
+          label="Export"
+          icon={<ExportIcon />}
+          onClick={handleExportCSV}
+          disabled={saving || disabled}
+          style={{ marginLeft: 0 }}
+        />
       </ToolbarGroup>
       <ToolbarGroup>
         <div>
-          <UpdateIcon /> Last Update: <Time explicit>{updatedAt}</Time>
+          <UpdateIcon /> <Time explicit>{updatedAt}</Time>
         </div>
         <RaisedButton
           label="Preview"
@@ -42,6 +52,7 @@ const TableEditToolbar = ({ showDialog, handleSaveChanges, previewChanges, updat
           disabled={saving || disabled}
         />
         <RaisedButton
+          ref={saveBtnRef}
           label="Save"
           icon={<SaveIcon />}
           onClick={handleSaveChanges}

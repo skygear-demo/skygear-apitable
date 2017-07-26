@@ -4,8 +4,10 @@ import { reset } from 'redux-form';
 import AddFieldDialog from 'components/Table/Edit/AddFieldDialog';
 import RemoveFieldDialog from 'components/Table/Edit/RemoveFieldDialog';
 import GetEndPointDialog from 'components/Table/Edit/GetEndPointDialog';
+import EndPointDetailDialog from 'components/Table/Edit/EndPointDetailDialog';
 import RenameTableDialog from 'components/Table/Edit/RenameTableDialog';
 import PreviewDialog from 'components/Table/Edit/PreviewDialog';
+import ExportDialog from 'components/Table/Edit/ExportDialog';
 import TableEdit from 'components/Table/Edit';
 import { APP_NAME } from '../../../configs';
 import {
@@ -18,8 +20,11 @@ import {
   setFieldPendingRemove as setFieldPendingRemoveAction,
   issueToken as issueTokenAction,
   revokeToken as revokeTokenAction,
+  setTokenWritability as setTokenWritabilityAction,
   renameTable as renameTableAction,
   updateCache as updateCacheAction,
+  setTokenForDetail as setTokenForDetailAction,
+  exportCSV as exportCSVAction,
 } from '../actions';
 import { showNotification as showNotificationAction } from '../../Notification/actions';
 
@@ -41,9 +46,14 @@ type TableEditContainerProps = {
   removeTableField: Function,
   issueToken: Function,
   revokeToken: Function,
+  setTokenWritability: Function,
   renameTable: Function,
   resetForm: Function,
-  updateCache: Function
+  updateCache: Function,
+  setTokenForDetail: Function,
+  tokenForDetail: any,
+  exportCSV: Function,
+  exportData: any
 }
 
 class TableEditContainer extends Component {
@@ -134,11 +144,44 @@ class TableEditContainer extends Component {
     .catch(() => showNotification('Oops! Failed to revoke token!'));
   }
 
+  handleTokenWritability = (token) => (e, writable) => {
+    const { setTokenWritability, showNotification } = this.props;
+
+    return new Promise((resolve, reject) => {
+      setTokenWritability(token, writable, resolve, reject);
+    })
+    .then(() => showNotification('Token\'s writability is set successfully!'))
+    .catch(() => showNotification('Oops! There is an error!'));
+  }
+
+  viewTokenDetail = (token, writable) => () => {
+    const { setTokenForDetail, showDialog } = this.props;
+
+    setTokenForDetail(token, writable);
+    showDialog('endPointDetail');
+  }
+
+  handleExportCSV = () => {
+    const { params: { id }, exportCSV, showDialog, showNotification } = this.props;
+
+    return new Promise((resolve, reject) => {
+      exportCSV(id, resolve, reject);
+    })
+    .then((recordCount) => {
+      if (recordCount === 0) {
+        showNotification('There is no record in this table.');
+      } else {
+        showDialog('export');
+      }
+    })
+    .catch(() => showNotification('Oops! Failed to export!'));
+  }
+
   showDialog = (name) => () => this.props.showDialog(name);
   hideDialog = (name) => () => this.props.hideDialog(name);
 
   render() {
-    const { params: { id }, dialog, table, cache, loading, saving, setFieldPendingRemove, pendingRemoveField, showNotification, loadMoreTableRecords, updateCache } = this.props;
+    const { params: { id }, dialog, table, cache, loading, saving, setFieldPendingRemove, pendingRemoveField, showNotification, loadMoreTableRecords, updateCache, tokenForDetail, exportData } = this.props;
 
     return (
       <div>
@@ -161,14 +204,31 @@ class TableEditContainer extends Component {
           tokens={table.get('tokens')}
           show={dialog.get('getEndPoint')}
           handleClose={this.hideDialog('getEndPoint')}
+          handleTokenWritability={this.handleTokenWritability}
           handleIssueToken={this.handleIssueToken}
           handleRevokeToken={this.handleRevokeToken}
+          viewTokenDetail={this.viewTokenDetail}
+        />}
+
+        {!loading && <EndPointDetailDialog
+          appName={APP_NAME}
+          id={id}
+          token={tokenForDetail}
+          show={dialog.get('endPointDetail')}
+          handleClose={this.hideDialog('endPointDetail')}
+        />}
+
+        {!loading && <ExportDialog
+          exportData={exportData.toJS()}
+          show={dialog.get('export')}
+          handleClose={this.hideDialog('export')}
         />}
 
         {!loading && <PreviewDialog
           table={table}
           cache={cache}
           show={dialog.get('preview')}
+          saveBtn={this.saveBtn}
           handleClose={this.hideDialog('preview')}
         />}
 
@@ -179,10 +239,12 @@ class TableEditContainer extends Component {
         />
 
         <TableEdit
+          saveBtnRef={(saveBtn) => { this.saveBtn = saveBtn; }}
           loading={loading}
           table={table}
           showDialog={this.showDialog}
           handleSaveChanges={this.handleSaveChanges}
+          handleExportCSV={this.handleExportCSV}
           setFieldPendingRemove={setFieldPendingRemove}
           showNotification={showNotification}
           loadMoreTableRecords={loadMoreTableRecords}
@@ -202,6 +264,8 @@ export default connect(
     loading: state.get('table').get('loading'),
     saving: state.get('table').get('saving'),
     pendingRemoveField: state.get('table').get('pendingRemoveField'),
+    tokenForDetail: state.get('table').get('tokenForDetail'),
+    exportData: state.get('table').get('exportData'),
   }),
   {
     showDialog: showDialogAction,
@@ -214,8 +278,11 @@ export default connect(
     removeTableField: removeTableFieldAction,
     issueToken: issueTokenAction,
     revokeToken: revokeTokenAction,
+    setTokenWritability: setTokenWritabilityAction,
     renameTable: renameTableAction,
     resetForm: reset,
     updateCache: updateCacheAction,
+    setTokenForDetail: setTokenForDetailAction,
+    exportCSV: exportCSVAction,
   }
 )(TableEditContainer);

@@ -1,8 +1,8 @@
 /* @flow */
 
 import React from 'react';
-import type { List } from 'immutable';
 import Dialog from 'material-ui/Dialog';
+import Toggle from 'material-ui/Toggle';
 import TextField from 'material-ui/TextField';
 import FlatButton from 'material-ui/FlatButton';
 import RaisedButton from 'material-ui/RaisedButton';
@@ -34,14 +34,16 @@ const actions = (handleIssueToken, handleClose) => [
 type GetEndPointDialogProps = {
   appName: string,
   id: string,
-  tokens: List<string>,
+  tokens: any,
   show: boolean,
+  handleTokenWritability: Function,
   handleIssueToken: Function,
   handleRevokeToken: Function,
-  handleClose: Function
+  handleClose: Function,
+  viewTokenDetail: Function
 }
 
-const GetEndPointDialog = ({ appName, id, tokens, show, handleIssueToken, handleRevokeToken, handleClose }: GetEndPointDialogProps) => (
+const GetEndPointDialog = ({ appName, id, tokens, show, handleTokenWritability, handleIssueToken, handleRevokeToken, handleClose, viewTokenDetail }: GetEndPointDialogProps) => (
   <Dialog
     title="End Point Information"
     actions={actions(handleIssueToken, handleClose)}
@@ -57,24 +59,38 @@ const GetEndPointDialog = ({ appName, id, tokens, show, handleIssueToken, handle
     {!!tokens.size && <Table selectable={false}>
       <TableHeader adjustForCheckbox={false} displaySelectAll={false}>
         <TableRow>
-          <TableHeaderColumn style={{ width: '73.5%' }}>Table Access Token</TableHeaderColumn>
+          <TableHeaderColumn style={{ width: '48%', paddingRight: 0 }}>Table Access Token</TableHeaderColumn>
+          <TableHeaderColumn style={{ width: '14%' }}>Writable</TableHeaderColumn>
           <TableHeaderColumn>Action</TableHeaderColumn>
         </TableRow>
       </TableHeader>
       <TableBody displayRowCheckbox={false}>
         {tokens.map((token) => (
-          <TableRow key={token}>
-            <TableRowColumn style={{ width: '70%' }}>{token}</TableRowColumn>
+          <TableRow key={token.get('token')}>
+            <TableRowColumn style={{ width: '48%', paddingRight: 0 }}>
+              {token.get('token')}
+            </TableRowColumn>
+            <TableRowColumn style={{ width: '10%' }}>
+              <Toggle
+                defaultToggled={token.get('writable')}
+                onToggle={handleTokenWritability(token.get('token'))}
+              />
+            </TableRowColumn>
             <TableRowColumn>
               <FlatButton
                 label="View"
                 primary
-                onTouchTap={handleViewAPI(appName, id, token)}
+                onTouchTap={handleViewAPI(appName, id, token.get('token'))}
+              />
+              <FlatButton
+                label="Detail"
+                primary
+                onTouchTap={viewTokenDetail(token.get('token'), token.get('writable'))}
               />
               <FlatButton
                 label="Revoke"
                 secondary
-                onTouchTap={handleRevokeToken(token)}
+                onTouchTap={handleRevokeToken(token.get('token'))}
               />
             </TableRowColumn>
           </TableRow>

@@ -26,6 +26,10 @@ import {
   REVOKE_TOKEN_SUCCESS,
   RENAME_TABLE,
   UPDATE_CACHE,
+  SET_TOKEN_WRITABILITY,
+  SET_TOKEN_FOR_DETAIL,
+  EXPORT_CSV,
+  EXPORT_CSV_SUCCESS,
 } from './constants';
 
 const initialState = fromJS({
@@ -35,8 +39,10 @@ const initialState = fromJS({
     addField: false,
     removeField: false,
     getEndPoint: false,
+    endPointDetail: false,
     renameTable: false,
     preview: false,
+    export: false,
   },
   list: [],
   page: 1,
@@ -57,6 +63,11 @@ const initialState = fromJS({
     createdRecords: {},
     deletedRecords: [],
   },
+  tokenForDetail: {
+    token: '',
+    writable: false,
+  },
+  exportData: [],
 });
 
 function tableReducer(state = initialState, action) {
@@ -135,16 +146,29 @@ function tableReducer(state = initialState, action) {
         .set('pendingRemoveField', fromJS(action.payload.fieldNames));
     case ISSUE_TOKEN_SUCCESS:
       return state
-        .updateIn(['data', 'tokens'], (tokens) => tokens.unshift(action.payload.token));
+        .updateIn(['data', 'tokens'], (tokens) => tokens.unshift(fromJS({ token: action.payload.token, writable: false })));
     case REVOKE_TOKEN_SUCCESS:
       return state
-        .updateIn(['data', 'tokens'], (tokens) => tokens.filter((token) => token !== action.payload.token));
+        .updateIn(['data', 'tokens'], (tokens) => tokens.filter((token) => token.get('token') !== action.payload.token));
     case RENAME_TABLE:
       return state
         .setIn(['data', 'name'], action.payload.name);
     case UPDATE_CACHE:
       return state
         .set('cache', fromJS(action.payload.cache));
+    case SET_TOKEN_WRITABILITY:
+      return state
+        .updateIn(['data', 'tokens'], (tokens) => tokens.map((token) => ((token.get('token') === action.payload.token) ? fromJS(action.payload) : token)));
+    case SET_TOKEN_FOR_DETAIL:
+      return state
+        .set('tokenForDetail', fromJS(action.payload));
+    case EXPORT_CSV:
+      return state
+        .set('loading', true);
+    case EXPORT_CSV_SUCCESS:
+      return state
+        .set('exportData', fromJS(action.payload.exportData))
+        .set('loading', false);
     default:
       return state;
   }
