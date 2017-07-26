@@ -19,5 +19,8 @@
         "noInterop": true
       }
     ]
+  ],
+  "ignore": [
+    "node_modules"
   ]
 }

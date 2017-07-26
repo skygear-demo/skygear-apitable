@@ -1,10 +1,24 @@
 /* eslint-disable no-underscore-dangle */
 
+import {
+  formatFields,
+  formatRecords,
+  sanitizeNewRecord,
+  getDataType,
+} from './utils/helpers';
+import {
+  TableNotFoundError,
+  RecordNotFoundError,
+  TokenInvalidError,
+  TokenNotWritableError,
+} from './utils/errors';
 const skygear = require('skygear');
 const skygearCloud = require('skygear/cloud');
 
-function getContainer() {
-  const container = new skygearCloud.CloudCodeContainer();
+function getContainer(userId) {
+  const container = new skygearCloud.CloudCodeContainer({
+    asUserId: userId,
+  });
   container.apiKey = skygearCloud.settings.masterKey;
   container.endPoint = `${skygearCloud.settings.skygearEndpoint}/`;
   return container;
@@ -13,33 +27,43 @@ function getContainer() {
 const Table = skygear.Record.extend('table');
 const TableRecord = skygear.Record.extend('tableRecord');
 const TableAccessToken = skygear.Record.extend('tableAccessToken');
-const skygearContainer = getContainer();
-const skygearDB = new skygear.Database('_union', skygearContainer);
+const globalContainer = getContainer();
+const skygearDB = new skygear.Database('_union', globalContainer);
 
-async function fetchTable(id, token, limit, offset, sort) {
+async function checkToken(tableId, token, writableRequired) {
   if (!token || token === '') {
-    throw new Error('You must provide a Table Access Token!');
+    throw new TokenInvalidError();
   }
 
   const tokenQuery = (new skygear.Query(TableAccessToken))
     .equalTo('_id', token)
-    .equalTo('table', id);
+    .equalTo('table', tableId);
   const tokenQueryResult = await skygearDB.query(tokenQuery);
 
   if (tokenQueryResult.length === 0) {
-    throw new Error('The Table Access Token is invalid for this table.');
+    throw new TokenInvalidError();
   }
 
+  if (writableRequired && !tokenQueryResult[0].writable) {
+    throw new TokenNotWritableError();
+  }
+}
+
+async function fetchTable(tableId) {
   const tableQuery = (new skygear.Query(Table))
-    .equalTo('_id', id);
+    .equalTo('_id', tableId);
   const tableQueryResult = await skygearDB.query(tableQuery);
 
   if (!tableQueryResult[0]) {
-    throw new Error('Table is not found!');
+    throw new TableNotFoundError();
   }
 
+  return tableQueryResult[0];
+}
+
+async function fetchRecords(tableId, limit, offset, sort) {
   const tableRecordQuery = (new skygear.Query(TableRecord))
-    .equalTo('table', id);
+    .equalTo('table', tableId);
 
   if (sort === 'desc') {
     tableRecordQuery.addDescending('_created_at');
@@ -52,28 +76,26 @@ async function fetchTable(id, token, limit, offset, sort) {
   tableRecordQuery.overallCount = true;
   const tableRecordQueryResult = await skygearDB.query(tableRecordQuery);
 
-  const fields = tableQueryResult[0].fields.map((field) => field.data);
-
-  const records = tableRecordQueryResult
-    .map((_record) => {
-      const record = {
-        id: _record._id,
-      };
-      for (let i = 0; i < fields.length; i += 1) {
-        const field = fields[i];
-        record[field] = _record.data[field];
-      }
-      return record;
-    });
-
-  const table = {
-    name: tableQueryResult[0].name,
-    records,
-    recordCount: tableRecordQueryResult.overallCount,
-    updatedAt: tableQueryResult[0].updatedAt,
+  return {
+    items: tableRecordQueryResult,
+    count: tableRecordQueryResult.overallCount,
   };
+}
 
-  return table;
+async function fetchRecord(tableId, recordId) {
+  const tableRecordQuery = (new skygear.Query(TableRecord))
+    .equalTo('table', tableId)
+    .equalTo('_id', recordId);
+
+  tableRecordQuery.limit = 1;
+
+  const tableRecordQueryResult = await skygearDB.query(tableRecordQuery);
+
+  if (!tableRecordQueryResult[0]) {
+    throw new RecordNotFoundError();
+  }
+
+  return tableRecordQueryResult;
 }
 
 async function checkOwner(tableId, ownerId) {
@@ -106,41 +128,204 @@ skygearCloud.afterSave('table', async (record, originalRecord, pool) => {
   async: false,
 });
 
+skygearCloud.beforeSave('tableRecord', async (record) => {
+  const tableId = record.table;
+  const table = await fetchTable(tableId);
+  const data = record.data;
+  table.fields.forEach((field) => {
+    if ((!data[field.data] && !field.allowEmpty) || (data[field.data] && typeof data[field.data] !== getDataType(field.type))) { // eslint-disable-line valid-typeof
+      throw new skygearCloud.SkygearError('Input data is invalid!', 422);
+    }
+  });
+  return record;
+}, {
+  async: false,
+});
+
 skygearCloud.beforeSave('tableAccessToken', async (record) => {
   const valid = await checkOwner(record.table, record.ownerID);
   if (!valid) {
-    throw new Error('Only the owner can issue a new token!');
+    throw new skygearCloud.SkygearError('You are not authrozied to issue a new Table Access Token for this table!', 401);
   }
   return record;
 }, {
   async: false,
 });
 
-skygearCloud.handler('api/tables', async (req) => {
+async function fetchTableHandler(tableId, token, _recordLimit, _recordOffset, _recordSort) {
+  const recordLimit = parseInt(_recordLimit, 10) || 50;
+  const recordOffset = parseInt(_recordOffset, 10) || 0;
+  const recordSort = (_recordSort === 'desc') ? _recordSort : 'asc';
+
+  await checkToken(tableId, token);
+  const table = await fetchTable(tableId);
+  const fields = formatFields(table.fields);
+  const records = await fetchRecords(tableId, recordLimit, recordOffset, recordSort);
+  const recordItems = formatRecords(records.items, fields);
+
+  return {
+    ok: true,
+    table: {
+      name: table.name,
+      records: recordItems,
+      recordCount: records.count,
+      updatedAt: table.updatedAt,
+    },
+    limit: recordLimit,
+    offset: recordOffset,
+    sort: recordSort,
+  };
+}
+
+async function fetchRecordHandler(tableId, recordId, token) {
+  await checkToken(tableId, token);
+  const table = await fetchTable(tableId);
+  const fields = formatFields(table.fields);
+  const record = await fetchRecord(tableId, recordId);
+  const formattedRecord = formatRecords(record, fields);
+
+  return {
+    ok: true,
+    table: {
+      name: table.name,
+      records: formattedRecord,
+      updatedAt: table.updatedAt,
+    },
+  };
+}
+
+async function createRecord(tableId, ownerId, body) {
+  const localContainer = getContainer(ownerId);
+  const privateDB = new skygear.Database('_private', localContainer);
+
+  /**
+   * Save the table once to update updateAt timestamp.
+   */
+  const table = new Table({
+    _id: `table/${tableId}`,
+  });
+  const newRecord = new TableRecord({
+    table: new skygear.Reference(`table/${tableId}`),
+    data: body,
+  });
+
+  const savedRecord = await privateDB.save(newRecord);
+  const savedTable = await privateDB.save(table);
+
+  return {
+    savedRecords: [
+      savedTable,
+      savedRecord,
+    ],
+  };
+}
+
+async function createRecordHandler(tableId, token, body) {
+  await checkToken(tableId, token, true);
+  const table = await fetchTable(tableId);
+  const fields = formatFields(table.fields);
+  const ownerId = table.ownerID;
+  const saveResult = await createRecord(tableId, ownerId, sanitizeNewRecord(JSON.parse(body), fields));
+  const savedRecords = saveResult.savedRecords;
+
+  return {
+    ok: true,
+    table: {
+      name: table.name,
+      records: [{
+        id: savedRecords[1]._id,
+        ...savedRecords[1].data,
+      }],
+      updatedAt: savedRecords[0].updatedAt,
+    },
+  };
+}
+
+async function deleteRecord(record) {
+  const localContainer = getContainer(record.ownerID);
+  const privateDB = new skygear.Database('_private', localContainer);
+
+  return await privateDB.delete({
+    id: `tableRecord/${record._id}`,
+  });
+}
+
+async function deleteRecordHandler(tableId, recordId, token) {
+  await checkToken(tableId, token, true);
+  const record = await fetchRecord(tableId, recordId);
+  await deleteRecord(record[0]);
+
+  return {
+    ok: true,
+    message: 'The record has been deleted!',
+  };
+}
+
+async function getTableResponse(req) {
+  const { id, record, token, limit, offset, sort } = req.url.query;
+
+  if (record) {
+    return await fetchRecordHandler(id, record, token);
+  }
+
+  return await fetchTableHandler(id, token, limit, offset, sort);
+}
+
+async function postTableResponse(req) {
+  const { url: { query: { id, token } }, body, headers } = req;
+  const accessToken = (headers.Authorization) ? headers.Authorization[0] : token;
+
+  return await createRecordHandler(id, accessToken, body);
+}
+
+async function deleteRecordResponse(req) {
+  const { url: { query: { id, record, token } }, headers } = req;
+  const accessToken = (headers.Authorization) ? headers.Authorization[0] : token;
+
+  return await deleteRecordHandler(id, record, accessToken);
+}
+
+async function getResponse(req) {
   try {
-    const { id, token, limit, offset, sort } = req.url.query;
-    const recordLimit = parseInt(limit, 10) || 50;
-    const recordOffset = parseInt(offset, 10) || 0;
-    const recordSort = (sort === 'desc') ? sort : 'asc';
-    const table = await fetchTable(id, token, recordLimit, recordOffset, recordSort);
-    return {
-      ok: true,
-      table,
-      limit: recordLimit,
-      offset: recordOffset,
-      sort: recordSort,
-    };
+    let response = {};
+
+    switch (req.method) {
+      case 'POST':
+        response = await postTableResponse(req);
+        break;
+      case 'DELETE':
+        response = await deleteRecordResponse(req);
+        break;
+      default:
+        response = await getTableResponse(req);
+        break;
+    }
+
+    return response;
   } catch (error) {
     return {
       ok: false,
       error: {
         name: error.name,
-        code: error.code,
+        code: error.code || 500,
         message: error.message,
       },
     };
   }
+}
+
+skygearCloud.handler('api/tables', async (req) => {
+  const response = await getResponse(req);
+  const statusCode = response.error ? response.error.code : 200;
+
+  return new skygearCloud.SkygearResponse({
+    statusCode,
+    body: JSON.stringify(response),
+    headers: {
+      'Content-Type': ['application/json; charset=utf-8'],
+    },
+  });
 }, {
-  method: ['GET'],
+  method: ['GET', 'POST', 'DELETE'],
   userRequired: false,
 });
