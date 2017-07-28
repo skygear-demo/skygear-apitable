@@ -194,38 +194,20 @@ async function fetchRecordHandler(tableId, recordId, token) {
   };
 }
 
-async function createRecord(tableId, ownerId, body) {
-  const localContainer = getContainer(ownerId);
-  const privateDB = new skygear.Database('_private', localContainer);
-
-  /**
-   * Save the table once to update updateAt timestamp.
-   */
-  const table = new Table({
-    _id: `table/${tableId}`,
-  });
+async function createRecord(table, body) {
   const newRecord = new TableRecord({
-    table: new skygear.Reference(`table/${tableId}`),
+    table: new skygear.Reference(`table/${table._id}`),
     data: body,
   });
 
-  const savedRecord = await privateDB.save(newRecord);
-  const savedTable = await privateDB.save(table);
-
-  return {
-    savedRecords: [
-      savedTable,
-      savedRecord,
-    ],
-  };
+  return await saveRecord(table, newRecord);
 }
 
 async function createRecordHandler(tableId, token, body) {
   await checkToken(tableId, token, true);
   const table = await fetchTable(tableId);
   const fields = formatFields(table.fields);
-  const ownerId = table.ownerID;
-  const saveResult = await createRecord(tableId, ownerId, sanitizeNewRecord(JSON.parse(body), fields));
+  const saveResult = await createRecord(table, sanitizeNewRecord(JSON.parse(body), fields));
   const savedRecords = saveResult.savedRecords;
 
   return {
@@ -248,6 +230,44 @@ async function deleteRecord(record) {
   return await privateDB.delete({
     id: `tableRecord/${record._id}`,
   });
+}
+
+async function saveRecord(table, record) {
+  const localContainer = getContainer(table.ownerID);
+  const privateDB = new skygear.Database('_private', localContainer);
+  const savedRecord = await privateDB.save(record);
+  // Save the table once to update updateAt timestamp.
+  const savedTable = await privateDB.save(table);
+
+  return {
+    savedRecords: [
+      savedTable,
+      savedRecord,
+    ],
+  };
+}
+
+async function putRecordHandler(tableId, recordId, token, body) {
+  await checkToken(tableId, token, true);
+  const table = await fetchTable(tableId);
+  const record = (await fetchRecord(tableId, recordId))[0];
+  const fields = formatFields(table.fields);
+  record.data = sanitizeNewRecord(JSON.parse(body), fields);
+  const saveResult = await saveRecord(table, record);
+  const savedRecords = saveResult.savedRecords;
+
+  return {
+    ok: true,
+    message: 'The record has been successfully updated.',
+    table: {
+      name: table.name,
+      records: [{
+        id: savedRecords[1]._id,
+        ...savedRecords[1].data,
+      }],
+      updatedAt: savedRecords[0].updatedAt,
+    },
+  };
 }
 
 async function deleteRecordHandler(tableId, recordId, token) {
@@ -278,6 +298,13 @@ async function postTableResponse(req) {
   return await createRecordHandler(id, accessToken, body);
 }
 
+async function putTableResponse(req) {
+  const { url: { query: { id, record, token } }, body, headers } = req;
+  const accessToken = (headers.Authorization) ? headers.Authorization[0] : token;
+
+  return await putRecordHandler(id, record, accessToken, body);
+}
+
 async function deleteRecordResponse(req) {
   const { url: { query: { id, record, token } }, headers } = req;
   const accessToken = (headers.Authorization) ? headers.Authorization[0] : token;
@@ -292,6 +319,9 @@ async function getResponse(req) {
     switch (req.method) {
       case 'POST':
         response = await postTableResponse(req);
+        break;
+      case 'PUT':
+        response = await putTableResponse(req);
         break;
       case 'DELETE':
         response = await deleteRecordResponse(req);
@@ -326,6 +356,6 @@ skygearCloud.handler('api/tables', async (req) => {
     },
   });
 }, {
-  method: ['GET', 'POST', 'DELETE'],
+  method: ['GET', 'POST', 'PUT', 'DELETE'],
   userRequired: false,
 });
