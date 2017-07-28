@@ -2,11 +2,21 @@
 /* @flow */
 
 import React from 'react';
+import styled from 'styled-components';
 import reactStringReplace from 'react-string-replace';
 import Dialog from 'material-ui/Dialog';
 import FlatButton from 'material-ui/FlatButton';
 import RaisedButton from 'material-ui/RaisedButton';
 import JSONPreview from './JSONPreview';
+
+const LineAddition = styled.div`
+  background: #e6ffed;
+`;
+
+const LineDeletion = styled.div`
+  background: #ffeef0;
+  text-decoration: line-through;
+`;
 
 const handleRecordId = (records) => records.map((_record) => {
   const record = _record;
@@ -17,17 +27,20 @@ const handleRecordId = (records) => records.map((_record) => {
 
 const formatDiff = (record, { changes, deletedRecords }) => {
   if (deletedRecords.includes(record.id)) {
-    return <strong style={{ color: 'red' }}><del>{JSON.stringify(record, null, 2)}</del></strong>;
+    return <LineDeletion>{JSON.stringify(record, null, 2)}</LineDeletion>;
   }
 
   if (changes[record.id]) {
     let modifiedRecord = JSON.stringify(record, null, 2);
     const modifiedFields = Object.keys(changes[record.id]);
     modifiedFields.forEach((field) => {
-      const oldKeyVal = `"${field}": ${JSON.stringify(record[field])}`;
-      const newKeyVal = `"${field}": ${JSON.stringify(changes[record.id][field])}`;
+      const oldKeyVal = `  "${field}": ${JSON.stringify(record[field])},\n`;
+      const newKeyVal = `  "${field}": ${JSON.stringify(changes[record.id][field])},`;
       modifiedRecord = reactStringReplace(modifiedRecord, oldKeyVal, (match) => (
-        <span key={`${record.id} ${field}`}><del style={{ color: 'red' }}>{match}</del> <strong style={{ color: 'green' }}>{newKeyVal}</strong></span>
+        <div key={`${record.id} ${field}`}>
+          <LineDeletion>{match}</LineDeletion>
+          <LineAddition>{newKeyVal}</LineAddition>
+        </div>
       ));
     });
     return modifiedRecord;
@@ -36,7 +49,7 @@ const formatDiff = (record, { changes, deletedRecords }) => {
   return JSON.stringify(record, null, 2);
 };
 
-const formatCreatedRecords = (id, record) => <strong key={id} style={{ color: 'green' }}>{JSON.stringify(record, null, 2)}</strong>;
+const formatCreatedRecords = (id, record) => <LineAddition key={id}>{JSON.stringify(record, null, 2)}</LineAddition>;
 
 const displayDiff = (records, cache) => {
   const formattedDiff = [];
@@ -79,9 +92,7 @@ const PreviewDialog = ({ show, table, cache, handleClose, saveBtn }: PreviewDial
     open={show}
   >
     <JSONPreview>
-      records: [
-        {displayDiff(handleRecordId(table.get('records').toJS()), cache.toJS())}
-      ]
+      {displayDiff(handleRecordId(table.get('records').toJS()), cache.toJS())}
     </JSONPreview>
   </Dialog>
 );
