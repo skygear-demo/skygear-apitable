@@ -5,6 +5,7 @@ import {
   formatRecords,
   sanitizeNewRecord,
   getDataType,
+  trackEvent,
 } from './utils/helpers';
 import {
   TableNotFoundError,
@@ -163,6 +164,8 @@ async function fetchTableHandler(tableId, token, _recordLimit, _recordOffset, _r
   const records = await fetchRecords(tableId, recordLimit, recordOffset, recordSort);
   const recordItems = formatRecords(records.items, fields);
 
+  await trackEvent('APICall', 'Fetch records from the table', tableId);
+
   return {
     ok: true,
     table: {
@@ -183,6 +186,8 @@ async function fetchRecordHandler(tableId, recordId, token) {
   const fields = formatFields(table.fields);
   const record = await fetchRecord(tableId, recordId);
   const formattedRecord = formatRecords(record, fields);
+
+  await trackEvent('APICall', 'Fetch a single record from the table', tableId);
 
   return {
     ok: true,
@@ -209,6 +214,8 @@ async function createRecordHandler(tableId, token, body) {
   const fields = formatFields(table.fields);
   const saveResult = await createRecord(table, sanitizeNewRecord(JSON.parse(body), fields));
   const savedRecords = saveResult.savedRecords;
+
+  await trackEvent('APICall', 'Create a record for the table', tableId);
 
   return {
     ok: true,
@@ -256,6 +263,8 @@ async function putRecordHandler(tableId, recordId, token, body) {
   const saveResult = await saveRecord(table, record);
   const savedRecords = saveResult.savedRecords;
 
+  await trackEvent('APICall', 'Update a record of the table', tableId);
+
   return {
     ok: true,
     message: 'The record has been successfully updated.',
@@ -274,6 +283,8 @@ async function deleteRecordHandler(tableId, recordId, token) {
   await checkToken(tableId, token, true);
   const record = await fetchRecord(tableId, recordId);
   await deleteRecord(record[0]);
+
+  await trackEvent('APICall', 'Delete a record of the table', tableId);
 
   return {
     ok: true,
