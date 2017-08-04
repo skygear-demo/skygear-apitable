@@ -47,13 +47,13 @@ const EndPointDetailDialog = ({ appName, id, token, show, handleClose }: EndPoin
     {token.get('writable') && (
       <div>
         <TextField
-          floatingLabelText="Insert a new record: POST"
+          floatingLabelText="Create a new record: POST"
           value={withToken(apiBaseUrl(appName, id), token.get('token'))}
           fullWidth
         />
 
         <TextField
-          floatingLabelText="Update the record: PATCH"
+          floatingLabelText="Update the record: PUT"
           value={withToken(withRecordUrl(apiBaseUrl(appName, id)), token.get('token'))}
           fullWidth
         />
