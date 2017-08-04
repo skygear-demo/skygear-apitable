@@ -2,6 +2,20 @@
 
 import got from 'got';
 import queryString from 'query-string';
+import moment from 'moment';
+const skygearCloud = require('skygear/cloud');
+
+export function parseJSON(json) {
+  try {
+    return JSON.parse(json);
+  } catch (error) {
+    throw new skygearCloud.SkygearError('Input data is invalid!', 422);
+  }
+}
+
+export function checkDate(date) {
+  return moment(date, 'DD/MM/YYYY', true).isValid();
+}
 
 export function formatFields(fields) {
   return fields.map((field) => field.data);
@@ -24,7 +38,7 @@ export function formatRecords(records, fields) {
 export function sanitizeNewRecord(record, fields) {
   const newRecord = {};
   fields.forEach((field) => {
-    if (record[field]) {
+    if (record[field] !== undefined) {
       newRecord[field] = record[field];
     }
   });

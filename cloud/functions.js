@@ -1,6 +1,8 @@
 /* eslint-disable no-underscore-dangle */
 
 import {
+  parseJSON,
+  checkDate,
   formatFields,
   formatRecords,
   sanitizeNewRecord,
@@ -84,6 +86,10 @@ async function fetchRecords(tableId, limit, offset, sort) {
 }
 
 async function fetchRecord(tableId, recordId) {
+  if (!recordId) {
+    throw new RecordNotFoundError();
+  }
+
   const tableRecordQuery = (new skygear.Query(TableRecord))
     .equalTo('table', tableId)
     .equalTo('_id', recordId);
@@ -129,12 +135,16 @@ skygearCloud.afterSave('table', async (record, originalRecord, pool) => {
   async: false,
 });
 
-skygearCloud.beforeSave('tableRecord', async (record) => {
+skygearCloud.beforeSave('tableRecord', async (_record) => {
+  const record = _record;
   const tableId = record.table;
   const table = await fetchTable(tableId);
   const data = record.data;
   table.fields.forEach((field) => {
-    if ((!data[field.data] && !field.allowEmpty) || (data[field.data] && typeof data[field.data] !== getDataType(field.type))) { // eslint-disable-line valid-typeof
+    if (data[field.data] === undefined && field.type === 'checkbox') {
+      record.data[field.data] = false;
+    }
+    if ((data[field.data] === undefined && !field.allowEmpty) || (data[field.data] !== undefined && typeof data[field.data] !== getDataType(field.type)) || (data[field.data] && field.type === 'date' && !checkDate(data[field.data]))) { // eslint-disable-line valid-typeof
       throw new skygearCloud.SkygearError('Input data is invalid!', 422);
     }
   });
@@ -212,7 +222,7 @@ async function createRecordHandler(tableId, token, body) {
   await checkToken(tableId, token, true);
   const table = await fetchTable(tableId);
   const fields = formatFields(table.fields);
-  const saveResult = await createRecord(table, sanitizeNewRecord(JSON.parse(body), fields));
+  const saveResult = await createRecord(table, sanitizeNewRecord(parseJSON(body), fields));
   const savedRecords = saveResult.savedRecords;
 
   await trackEvent('APICall', 'Create a record for the table', tableId);
@@ -259,7 +269,7 @@ async function putRecordHandler(tableId, recordId, token, body) {
   const table = await fetchTable(tableId);
   const record = (await fetchRecord(tableId, recordId))[0];
   const fields = formatFields(table.fields);
-  record.data = sanitizeNewRecord(JSON.parse(body), fields);
+  record.data = sanitizeNewRecord(parseJSON(body), fields);
   const saveResult = await saveRecord(table, record);
   const savedRecords = saveResult.savedRecords;
 
