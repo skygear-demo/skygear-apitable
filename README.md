@@ -1,5 +1,5 @@
 # APITable
-A service turning a spreadsheet into API end points.
+A web service turning a spreadsheet into API end points.
 APITable is powered by [Skygear][skygear].
 
 ## Quick start
@@ -11,7 +11,8 @@ APITable is powered by [Skygear][skygear].
 4. `$ cd ...`
 
 ### Deploy cloud code
-`$ yarn run deploy:cloud`
+1. `$ yarn run build:cloud`
+2. `$ yarn run deploy:cloud`
 
 ### Start the development server
 1. `$ mv app/configs.js.example app/configs.js` and edit `app/configs.js` to fill out necessary information accordingly.
@@ -23,9 +24,11 @@ APITable is powered by [Skygear][skygear].
 1. Setup your S3 bucket as a static website hosting. Make sure the error page is set to `index.html`.
 2. `$ npm run build`
 3. Upload files in `./build` to your S3 bucket.
+##### You also have to configure CloudFront, [read more][cloudfront-readmore].
 
 ## Documentation
 Please read the project's docs [here][apitable-doc]. Update the docs as nessesary in future development.
 
 [skygear]: https://skygear.io
 [apitable-doc]: docs/
+[cloudfront-readmore]: https://medium.com/@omgwtfmarc/deploying-create-react-app-to-s3-or-cloudfront-48dae4ce0af
