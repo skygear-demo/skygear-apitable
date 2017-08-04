@@ -33,7 +33,7 @@ const Jumbotron = ({ trackTryBtnClick }: JumbotronProps) => (
     </TopImageContainer>
     <SubTitle>From Table → JSON</SubTitle>
     <br />
-    <Button to="/tables" onClick={trackTryBtnClick}>TRY IT OUT NOW!</Button>
+    <Button to="/account/register" onClick={trackTryBtnClick}>TRY IT OUT NOW!</Button>
   </Wrapper>
 );
 

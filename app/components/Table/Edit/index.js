@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import ReactGA from 'react-ga';
 import _ from 'lodash';
 import { fromJS } from 'immutable';
 import FlatButton from 'material-ui/FlatButton';
@@ -237,6 +238,11 @@ class TableEdit extends Component {
     const { changes, createdRecords, deletedRecords } = this.state;
     updateCache(changes, cleanup(createdRecords), deletedRecords);
     showDialog('preview')();
+
+    ReactGA.event({
+      category: 'Table',
+      action: 'Preview changes',
+    });
   }
 
   props: TableEditProps

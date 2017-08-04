@@ -15,6 +15,7 @@ import CardLayout from '../../CardLayout';
 import Heading from '../Heading';
 import InputGroup from '../InputGroup';
 import ButtonGroup from '../ButtonGroup';
+import Footer from '../../Layout/Footer';
 
 const trackSignupBtn = () => {
   ReactGA.event({
@@ -38,51 +39,54 @@ type LoginProps = {
 }
 
 const Login = ({ handleSubmit, submitting }: LoginProps) => (
-  <CardLayout>
-    <form onSubmit={handleSubmit}>
-      <Heading>
-        <PersonIcon />
-        <div>User Login</div>
-      </Heading>
+  <div>
+    <CardLayout>
+      <form onSubmit={handleSubmit}>
+        <Heading>
+          <PersonIcon />
+          <div>User Login</div>
+        </Heading>
 
-      <InputGroup>
-        <EmailIcon />
-        <Field
-          name="email"
-          label="Email"
-          type="email"
-          component={renderTextField}
-        />
-      </InputGroup>
+        <InputGroup>
+          <EmailIcon />
+          <Field
+            name="email"
+            label="Email"
+            type="email"
+            component={renderTextField}
+          />
+        </InputGroup>
 
-      <InputGroup>
-        <LockIcon />
-        <Field
-          name="password"
-          label="Password"
-          type="password"
-          component={renderTextField}
-        />
-      </InputGroup>
-      <CardActions>
-        <ButtonGroup>
-          <RaisedButton
-            type="submit"
-            primary
-            label="Login"
-            disabled={submitting}
+        <InputGroup>
+          <LockIcon />
+          <Field
+            name="password"
+            label="Password"
+            type="password"
+            component={renderTextField}
           />
-        </ButtonGroup>
-        <ButtonGroup>
-          <FlatButton
-            containerElement={<Link to="/account/register" />}
-            label="Sign up for free"
-            onTouchTap={trackSignupBtn}
-          />
-        </ButtonGroup>
-      </CardActions>
-    </form>
-  </CardLayout>
+        </InputGroup>
+        <CardActions>
+          <ButtonGroup>
+            <RaisedButton
+              type="submit"
+              primary
+              label="Login"
+              disabled={submitting}
+            />
+          </ButtonGroup>
+          <ButtonGroup>
+            <FlatButton
+              containerElement={<Link to="/account/register" />}
+              label="Sign up for free"
+              onTouchTap={trackSignupBtn}
+            />
+          </ButtonGroup>
+        </CardActions>
+      </form>
+    </CardLayout>
+    <Footer />
+  </div>
 );
 
 export default reduxForm({

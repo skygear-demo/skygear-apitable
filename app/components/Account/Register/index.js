@@ -14,6 +14,7 @@ import CardLayout from '../../CardLayout';
 import Heading from '../Heading';
 import InputGroup from '../InputGroup';
 import ButtonGroup from '../ButtonGroup';
+import Footer from '../../Layout/Footer';
 
 const validate = (values) => {
   const errors = {};
@@ -34,73 +35,76 @@ type RegisterProps = {
 }
 
 const Register = ({ handleSubmit, submitting }: RegisterProps) => (
-  <CardLayout>
-    <form onSubmit={handleSubmit}>
-      <Heading>
-        <PersonIcon />
-        <div>
-          <Link to="/account/login">
-            <BackIcon />
-          </Link>
-          User Register
-        </div>
-      </Heading>
+  <div>
+    <CardLayout>
+      <form onSubmit={handleSubmit}>
+        <Heading>
+          <PersonIcon />
+          <div>
+            <Link to="/account/login">
+              <BackIcon />
+            </Link>
+            User Register
+          </div>
+        </Heading>
 
-      <InputGroup>
-        <PersonIcon />
-        <Field
-          name="firstName"
-          label="First Name"
-          component={renderTextField}
-        />
-        <Field
-          name="lastName"
-          label="Last Name"
-          component={renderTextField}
-        />
-      </InputGroup>
-
-      <InputGroup>
-        <EmailIcon />
-        <Field
-          name="email"
-          label="Email"
-          type="email"
-          component={renderTextField}
-        />
-      </InputGroup>
-
-      <InputGroup>
-        <LockIcon />
-        <Field
-          name="password"
-          label="Password"
-          type="password"
-          component={renderTextField}
-        />
-      </InputGroup>
-
-      <InputGroup>
-        <LockIcon />
-        <Field
-          name="confirmPassword"
-          label="Confirm Password"
-          type="password"
-          component={renderTextField}
-        />
-      </InputGroup>
-
-      <CardActions>
-        <ButtonGroup>
-          <RaisedButton
-            type="submit"
-            primary label="Register"
-            disabled={submitting}
+        <InputGroup>
+          <PersonIcon />
+          <Field
+            name="firstName"
+            label="First Name"
+            component={renderTextField}
           />
-        </ButtonGroup>
-      </CardActions>
-    </form>
-  </CardLayout>
+          <Field
+            name="lastName"
+            label="Last Name"
+            component={renderTextField}
+          />
+        </InputGroup>
+
+        <InputGroup>
+          <EmailIcon />
+          <Field
+            name="email"
+            label="Email"
+            type="email"
+            component={renderTextField}
+          />
+        </InputGroup>
+
+        <InputGroup>
+          <LockIcon />
+          <Field
+            name="password"
+            label="Password"
+            type="password"
+            component={renderTextField}
+          />
+        </InputGroup>
+
+        <InputGroup>
+          <LockIcon />
+          <Field
+            name="confirmPassword"
+            label="Confirm Password"
+            type="password"
+            component={renderTextField}
+          />
+        </InputGroup>
+
+        <CardActions>
+          <ButtonGroup>
+            <RaisedButton
+              type="submit"
+              primary label="Register"
+              disabled={submitting}
+            />
+          </ButtonGroup>
+        </CardActions>
+      </form>
+    </CardLayout>
+    <Footer />
+  </div>
 );
 
 export default reduxForm({
