@@ -26,7 +26,7 @@ type TableListContainerProps = {
   showNotification: Function,
   loading: boolean,
   page: number,
-  total: number,
+  hasMore: boolean,
   list: any,
   pendingDeleteTable: any
 }
