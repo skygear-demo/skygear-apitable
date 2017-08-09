@@ -56,12 +56,14 @@ const AddFieldDialog = ({ show, handleClose, handleSubmit, submitting }: AddFiel
       <Field
         name="name"
         label="Title"
+        hintText="e.g: Name, Age"
         component={renderTextField}
       />
 
       <Field
         name="data"
         label="Data Name"
+        hintText="This will be used as JSON Object Keys in API, e.g: name -> { name: ... }"
         component={renderTextField}
       />
 

@@ -5,6 +5,7 @@ import FloatingActionButton from 'material-ui/FloatingActionButton';
 import ContentAdd from 'material-ui/svg-icons/content/add';
 import { CardActions, CardHeader, CardText } from 'material-ui/Card';
 import FlatButton from 'material-ui/FlatButton';
+import RaisedButton from 'material-ui/RaisedButton';
 import Avatar from 'material-ui/Avatar';
 import FileIcon from 'material-ui/svg-icons/editor/insert-drive-file';
 import URLIcon from 'material-ui/svg-icons/file/cloud';
@@ -94,7 +95,16 @@ class TableList extends Component {
 
     return (
       <CardContainer>
-        <GetStarted>There is no table yet!<br />Create one to get started.</GetStarted>
+        <GetStarted>
+          There is no table yet!<br />
+          Create one to get started.<br /><br />
+          <RaisedButton
+            label="Create Table"
+            style={{ fontSize: 16 }}
+            onTouchTap={this.props.showDialog('createTable')}
+            primary
+          />
+        </GetStarted>
       </CardContainer>
     );
   };
