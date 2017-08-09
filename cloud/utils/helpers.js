@@ -9,7 +9,7 @@ export function parseJSON(json) {
   try {
     return JSON.parse(json);
   } catch (error) {
-    throw new skygearCloud.SkygearError('Input data is invalid!', 422);
+    throw new skygearCloud.SkygearError('Input data is not a valid JSON!', 422);
   }
 }
 

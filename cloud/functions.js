@@ -145,7 +145,7 @@ skygearCloud.beforeSave('tableRecord', async (_record) => {
       record.data[field.data] = false;
     }
     if ((data[field.data] === undefined && !field.allowEmpty) || (data[field.data] !== undefined && typeof data[field.data] !== getDataType(field.type)) || (data[field.data] && field.type === 'date' && !checkDate(data[field.data]))) { // eslint-disable-line valid-typeof
-      throw new skygearCloud.SkygearError('Input data is invalid!', 422);
+      throw new skygearCloud.SkygearError(`Input data of '${field.data}' key is invalid!`, 422);
     }
   });
   return record;
@@ -277,7 +277,7 @@ async function putRecordHandler(tableId, recordId, token, body) {
 
   return {
     ok: true,
-    message: 'The record has been successfully updated.',
+    message: `Record ${recordId} has been updated successfully.`,
     table: {
       name: table.name,
       records: [{
@@ -298,7 +298,7 @@ async function deleteRecordHandler(tableId, recordId, token) {
 
   return {
     ok: true,
-    message: 'The record has been deleted!',
+    message: `Record ${recordId} has been deleted successfully.`,
   };
 }
 
