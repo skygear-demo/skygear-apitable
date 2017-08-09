@@ -303,13 +303,14 @@ async function deleteRecordHandler(tableId, recordId, token) {
 }
 
 async function getTableResponse(req) {
-  const { id, record, token, limit, offset, sort } = req.url.query;
+  const { url: { query: { id, record, token, limit, offset, sort } }, headers } = req;
+  const accessToken = (headers.Authorization) ? headers.Authorization[0] : token;  
 
   if (record) {
-    return await fetchRecordHandler(id, record, token);
+    return await fetchRecordHandler(id, record, accessToken);
   }
 
-  return await fetchTableHandler(id, token, limit, offset, sort);
+  return await fetchTableHandler(id, accessToken, limit, offset, sort);
 }
 
 async function postTableResponse(req) {
