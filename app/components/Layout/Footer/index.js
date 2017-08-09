@@ -19,9 +19,9 @@ const Footer = () => (
       <Col>
         <Row between="sm" style={{ padding: '0 8px' }}>
           <Col>
-            <Heading>About</Heading>
+            <Heading>APITable</Heading>
             <Links style={{ minWidth: 150 }}>
-              <LinksItem><a href="/">About APITable</a></LinksItem>
+              <LinksItem><a href="https://github.com/skygear-demo/skygear-apitable">Github Repo</a></LinksItem>
               <LinksItem><a href="mailto:support+apitable@oursky.com">Contact</a></LinksItem>
             </Links>
           </Col>

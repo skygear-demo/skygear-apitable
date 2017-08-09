@@ -14,6 +14,11 @@ const SubTitle = styled.h2`
   margin: 0;
   font-size: 18px;
   font-weight: 100;
+
+  & > a {
+    color: #FFF;
+    font-weight: 200;
+  }
 `;
 
 const TopImageContainer = styled.div`
@@ -28,12 +33,13 @@ const Jumbotron = ({ trackTryBtnClick }: JumbotronProps) => (
   <Wrapper>
     <Title>The Next Generation API.</Title>
     <SubTitle>Create, edit and organize all data in tables.</SubTitle>
+    <SubTitle>powered by <a href="https://skygear.io/" target="_blank">Skygear</a></SubTitle>
     <TopImageContainer>
       <img src={TopImage} alt="APITable" />
     </TopImageContainer>
     <SubTitle>From Table → JSON</SubTitle>
     <br />
-    <Button to="/account/register" onClick={trackTryBtnClick}>TRY IT OUT NOW!</Button>
+    <Button to="/account/register" onClick={trackTryBtnClick}>TRY IT FOR FREE!</Button>
   </Wrapper>
 );
 
