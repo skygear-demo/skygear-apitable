@@ -269,7 +269,10 @@ async function putRecordHandler(tableId, recordId, token, body) {
   const table = await fetchTable(tableId);
   const record = (await fetchRecord(tableId, recordId))[0];
   const fields = formatFields(table.fields);
-  record.data = sanitizeNewRecord(parseJSON(body), fields);
+  record.data = {
+    ...record.data,
+    ...sanitizeNewRecord(parseJSON(body), fields),
+  };
   const saveResult = await saveRecord(table, record);
   const savedRecords = saveResult.savedRecords;
 
