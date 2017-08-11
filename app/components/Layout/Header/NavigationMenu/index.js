@@ -25,6 +25,11 @@ const NavigationMenu = ({ open, handleToggle, recentTables }: NavigationMenuProp
       onClick={handleToggle}
     />
     <MenuItem
+      primaryText="Documentation"
+      containerElement={<Link to="/docs" />}
+      onClick={handleToggle}
+    />
+    <MenuItem
       primaryText="Feedback"
       href="https://docs.google.com/forms/d/e/1FAIpQLSeHUPZRPhNPUgvrssIzJBjplHvjZa70K0_WzUzqw2cXu7anMg/viewform"
       target="_blank"

@@ -4,12 +4,19 @@ import React from 'react';
 import Dialog from 'material-ui/Dialog';
 import TextField from 'material-ui/TextField';
 import RaisedButton from 'material-ui/RaisedButton';
+import FlatButton from 'material-ui/FlatButton';
 
 const apiBaseUrl = (appName: string, id: string): string => `https://${appName}.skygeario.com/api/tables?id=${id}`;
 const withRecordUrl = (baseUrl): string => `${baseUrl}&record=<< Record ID >>`;
 const withToken = (url, token) => `${url}&token=${token}`;
+const linkToDocs = () => window.open('/docs');
 
 const actions = (handleClose) => [
+  <FlatButton
+    label="Documentation"
+    primary
+    onTouchTap={linkToDocs}
+  />,
   <RaisedButton
     label="DONE"
     primary

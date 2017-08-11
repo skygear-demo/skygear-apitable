@@ -30,6 +30,9 @@ module.exports = (options) => ({
       test: /\.(eot|svg|ttf|woff|woff2)$/,
       loader: 'file-loader',
     }, {
+      test: /\.md$/,
+      loader: 'raw-loader',
+    }, {
       test: /\.(jpg|png|gif)$/,
       loaders: [
         'file-loader',

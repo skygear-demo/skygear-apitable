@@ -17,8 +17,14 @@ import {
 
 const apiBaseUrl = (appName: string, id: string, token: string = ''): string => `https://${appName}.skygeario.com/api/tables?id=${id}&token=${token}`;
 const handleViewAPI = (appName: string, id: string, token: string) => () => window.open(apiBaseUrl(appName, id, token));
+const linkToDocs = () => window.open('/docs');
 
 const actions = (handleIssueToken, handleClose) => [
+  <FlatButton
+    label="Documentation"
+    primary
+    onTouchTap={linkToDocs}
+  />,
   <FlatButton
     label="Create New Token"
     primary

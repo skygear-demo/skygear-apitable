@@ -17,4 +17,24 @@ injectGlobal`
   a {
     text-decoration: none;
   }
+
+  .docs-pre,
+  .docs-code {
+    font-family: Menlo,Monaco,"Courier New",Courier,monospace;
+    background: #EFEFEF;
+    padding: 0.1rem 0.3rem;
+    max-width: 800px;
+  }
+
+  .docs-table,
+  .docs-th,
+  .docs-td {
+    border: 1px solid #CCC;
+  }
+
+  .docs-th,
+  .docs-td {
+    padding: 0.2rem 0.5rem;
+    max-width: 400px;
+  }
 `;
